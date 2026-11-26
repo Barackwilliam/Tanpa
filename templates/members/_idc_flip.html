@@ -1,0 +1,8 @@
+{% load static %}{# Flip card: front (Classic Official) / back (Vital Signs). Click or tap to turn. #}
+<div class="idc-flip" data-flip tabindex="0" role="button" aria-label="Membership card: tap to see the other side">
+  <div class="idc-flip-in">
+    <div class="idc-face">{% include "members/_idc_front.html" %}</div>
+    <div class="idc-face idc-face-back">{% include "members/_idc_back.html" %}</div>
+  </div>
+</div>
+<p class="idc-hint">Tap the card to turn it over</p>

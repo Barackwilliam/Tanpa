@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from events.models import Event
 from members.models import Member
+from members.views import sample_card_context
 from payments.models import FeeSchedule
 
 from .forms import ContactForm
@@ -25,6 +26,7 @@ def home(request):
         "event_count": Event.objects.filter(is_published=True).count(),
         "region_count": Member.objects.filter(entry_fee_paid=True).values("region").distinct().count(),
         "fees": FeeSchedule.for_year(),
+        **sample_card_context(),
     })
 
 
@@ -33,7 +35,7 @@ def about(request):
 
 
 def membership(request):
-    return render(request, "core/membership.html", {"fees": FeeSchedule.for_year()})
+    return render(request, "core/membership.html", {"fees": FeeSchedule.for_year(), **sample_card_context()})
 
 
 def post_list(request):

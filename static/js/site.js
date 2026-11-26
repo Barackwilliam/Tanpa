@@ -199,3 +199,19 @@
     });
   }
 })();
+/* flip cards: tap/click or Enter to turn */
+(function () {
+  document.querySelectorAll("[data-flip]").forEach(function (f) {
+    function turn() {
+      var inner = f.querySelector(".idc-flip-in");
+      if (!f.classList.contains("manual")) {
+        // freeze the auto animation on the side currently showing
+        var m = getComputedStyle(inner).transform, showingBack = false;
+        if (m && m !== "none") { var v = m.split("(")[1].split(")")[0].split(","); showingBack = parseFloat(v[0]) < 0; }
+        f.classList.add("manual"); f.classList.toggle("turned", !showingBack);
+      } else { f.classList.toggle("turned"); }
+    }
+    f.addEventListener("click", turn);
+    f.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); turn(); } });
+  });
+})();

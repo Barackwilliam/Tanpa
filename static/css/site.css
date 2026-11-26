@@ -869,3 +869,16 @@ h1,h2,h3{overflow-wrap:break-word}
 .idc-pair.inactive .idc{filter:grayscale(.7);opacity:.85}
 .idc-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:36px}
 @media(max-width:600px){.idc-actions .btn{width:100%}}
+
+/* flip card (example on public pages, member's own card in the portal) */
+.idc-stage{perspective:1600px;width:100%;max-width:520px;margin:0 auto}
+.idc-flip{cursor:pointer;outline:none}
+.idc-flip-in{position:relative;transform-style:preserve-3d;transition:transform .9s var(--ease);animation:idc-auto 10s ease-in-out infinite}
+.idc-flip:hover .idc-flip-in,.idc-flip:focus-visible .idc-flip-in{animation-play-state:paused}
+.idc-flip.manual .idc-flip-in{animation:none}
+.idc-flip.manual.turned .idc-flip-in{transform:rotateY(180deg)}
+.idc-face{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.idc-face-back{position:absolute;inset:0;transform:rotateY(180deg)}
+@keyframes idc-auto{0%,38%{transform:rotateY(0)}50%,88%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
+.idc-hint{text-align:center;font-family:var(--f-mono);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 0 0}
+@media(prefers-reduced-motion:reduce){.idc-flip-in{animation:none}}

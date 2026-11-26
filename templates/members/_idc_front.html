@@ -1,0 +1,16 @@
+{% load static %}<div class="idc idc-front" aria-label="Front of membership card">
+            {{ guilloche|safe }}
+            <div class="f-head"><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""><div><b>TANZANIA ASSOCIATION OF<br>NON PHYSICIAN ANAESTHETISTS</b><span>MEMBERSHIP IDENTITY CARD</span></div></div>
+            <div class="f-stripe"></div>
+            <div class="f-photo">{% if photo %}<img src="{{ photo }}" alt="">{% else %}<span>{{ initials }}</span>{% endif %}</div>
+            <div class="f-info">
+              <div class="f-name">{{ name|upper }}</div>
+              <div class="f-grid">
+                <div><small>Membership No.</small><b class="mono g">{{ number }}</b></div>
+                <div><small>Region</small><b>{{ region }}</b></div>
+                <div class="full"><small>Cadre</small><b>{{ cadre|default:"—" }}</b></div>
+              </div>
+            </div>
+            <div class="f-holo"><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""></div>
+            <div class="f-foot"><span>VALID UNTIL <b>31 DEC {{ year }}</b></span>{% if active %}<em>ACTIVE MEMBER</em>{% else %}<em class="no">NON-ACTIVE</em>{% endif %}</div>
+          </div>

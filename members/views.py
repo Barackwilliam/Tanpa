@@ -64,7 +64,15 @@ def dashboard(request):
     from events.models import Event
 
     upcoming = Event.objects.filter(is_published=True, end_date__gte=timezone.localdate()).order_by("start_date")[:3]
+    from django.conf import settings as dj_settings
+
+    from .idcard import guilloche_svg
+
     return render(request, "members/dashboard.html", {
+        "guilloche": guilloche_svg(),
+        "qr": _qr_data_uri(f"{dj_settings.SITE_URL}{member.get_verify_url()}") if member.membership_number else "",
+        "photo_url": member.photo.url if member.photo else "",
+        "initials": (member.first_name[:1] + member.last_name[:1]).upper(),
         "member": member,
         "year": year,
         "fees": fees,
@@ -176,7 +184,29 @@ def card(request):
         "qr": _qr_data_uri(verify_url) if member.membership_number else "",
         "verify_url": verify_url,
         "guilloche": guilloche_svg(),
+        "photo_url": member.photo.url if member.photo else "",
+        "initials": (member.first_name[:1] + member.last_name[:1]).upper(),
+        "is_active": member.is_active_member,
     })
+
+
+def sample_card_context():
+    """Context for the example card on public pages: real QR pointing at the verify page."""
+    from django.conf import settings
+    from django.urls import reverse
+
+    from .idcard import guilloche_svg
+
+    from django.templatetags.static import static
+
+    year = timezone.localdate().year
+    return {
+        "guilloche": guilloche_svg(),
+        "qr": _qr_data_uri(f"{settings.SITE_URL}{reverse('members:verify_lookup')}"),
+        "year": year,
+        "sample_number": f"TANPA/{year}/0001",
+        "sample_photo": static("img/sample-avatar.svg"),
+    }
 
 
 @member_required

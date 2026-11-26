@@ -10,7 +10,10 @@
       <p style="font-size:1.12rem;max-width:30em">{% if member.is_active_member %}You're all set for {{ year }}. Your card is ready to download.{% elif member.status == "pending" %}One step left: pay your fees to receive your membership number and ID card.{% elif member.status == "suspended" %}Your membership is currently suspended. Please contact the secretariat.{% else %}Renew your {{ year }} subscription to become active again.{% endif %}</p>
       {% if member.membership_number %}<p class="mono" style="color:var(--y);font-size:1.1rem;margin:0">{{ member.membership_number }}</p>{% endif %}
     </div>
-    {% include "members/_card.html" %}
+    <div class="idc-stage">
+      {% if member.membership_number %}{% include "members/_idc_flip.html" with name=member.display_name number=member.membership_number region=member.region cadre=member.cadre_name photo=photo_url active=member.is_active_member %}
+      {% else %}{% include "members/_idc_front.html" with name=member.display_name number="Issued after payment" region=member.region cadre=member.cadre_name photo=photo_url active=False %}{% endif %}
+    </div>
   </div>
 </section>
 

@@ -40,9 +40,7 @@
       <h2>Why join</h2>
       {% if site.benefits_list %}<ul class="ticks">{% for b in site.benefits_list %}<li>{{ b }}</li>{% endfor %}</ul>
       {% else %}<ul class="ticks"><li>Official TANPA membership number and QR-verified ID card</li><li>Member rate for conferences and meetings</li><li>Online payments, receipts and records in one place</li></ul>{% endif %}
-      <div class="card3d-stage" style="padding-top:10px">
-        <div class="card3d"><div class="c-head"><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""><div><b>TANZANIA ASSOCIATION OF NON PHYSICIAN ANAESTHETISTS</b><span>MEMBERSHIP IDENTITY CARD</span></div></div><div class="c-body"><div class="c-photo">{% include "partials/icon.html" with name="user" size=34 %}</div><div><div class="c-name">Your name</div><div class="c-f">Membership No.</div><div class="c-v" style="font-family:var(--f-mono)">TANPA/{% now "Y" %}/0000</div></div></div><div class="c-qr"></div><div class="c-foot"><span>VALID UNTIL <b>31 DEC {% now "Y" %}</b></span><em>ACTIVE</em></div></div>
-      </div>
+      <div class="idc-stage" style="padding-top:10px">{% include "members/_idc_flip.html" with name="Your Name" number=sample_number region="Your region" cadre="Your cadre" photo=sample_photo initials="YN" active=True %}</div>
     </div>
   </div>
 </section>

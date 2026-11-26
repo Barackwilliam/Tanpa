@@ -31,32 +31,11 @@
 
       <div class="idc-pair {% if st != 'active' %}inactive{% endif %}">
         <figure>
-          <div class="idc idc-front" aria-label="Front of membership card">
-            {{ guilloche|safe }}
-            <div class="f-head"><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""><div><b>TANZANIA ASSOCIATION OF<br>NON PHYSICIAN ANAESTHETISTS</b><span>MEMBERSHIP IDENTITY CARD</span></div></div>
-            <div class="f-stripe"></div>
-            <div class="f-photo">{% if member.photo %}<img src="{{ member.photo.url }}" alt="">{% else %}<span>{{ member.first_name|slice:":1" }}{{ member.last_name|slice:":1" }}</span>{% endif %}</div>
-            <div class="f-info">
-              <div class="f-name">{{ member.display_name|upper }}</div>
-              <div class="f-grid">
-                <div><small>Membership No.</small><b class="mono g">{{ member.membership_number }}</b></div>
-                <div><small>Region</small><b>{{ member.region }}</b></div>
-                <div class="full"><small>Cadre</small><b>{{ member.cadre_name|default:"—" }}</b></div>
-              </div>
-            </div>
-            <div class="f-holo"><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""></div>
-            <div class="f-foot"><span>VALID UNTIL <b>31 DEC {{ year }}</b></span>{% if st == "active" %}<em>ACTIVE MEMBER</em>{% else %}<em class="no">NON-ACTIVE</em>{% endif %}</div>
-          </div>
+          {% include "members/_idc_front.html" with name=member.display_name number=member.membership_number region=member.region cadre=member.cadre_name photo=photo_url initials=initials active=is_active %}
           <figcaption>Front</figcaption>
         </figure>
         <figure>
-          <div class="idc idc-back" aria-label="Back of membership card">
-            <svg class="b-ecg" viewBox="0 0 856 540" preserveAspectRatio="none" aria-hidden="true"><path d="M0 400 L60 400 Q70 388 80 400 L100 400 L107 410 L116 358 L126 432 L134 392 L140 400 L170 400 Q186 380 202 400 L260 400 L320 400 Q330 388 340 400 L360 400 L367 410 L376 358 L386 432 L394 392 L400 400 L430 400 Q446 380 462 400 L520 400 L580 400 Q590 388 600 400 L620 400 L627 410 L636 358 L646 432 L654 392 L660 400 L690 400 Q706 380 722 400 L780 400 L840 400 Q850 388 860 400 L880 400 L887 410 L896 358 L906 432 L914 392 L920 400 L950 400 Q966 380 982 400 L1040 400"/></svg>
-            <div class="b-qr"><img src="{{ qr }}" alt="QR code to verify this membership"></div>
-            <div class="b-txt"><small>SCAN TO VERIFY</small><b>Live status from the official register</b><p>Property of TANPA. If found, please return to the TANPA secretariat.</p></div>
-            <div class="b-num mono">{{ member.membership_number }}</div>
-            <div class="b-sign">AUTHORISED SIGNATURE</div>
-          </div>
+          {% include "members/_idc_back.html" with number=member.membership_number %}
           <figcaption>Back</figcaption>
         </figure>
       </div>
