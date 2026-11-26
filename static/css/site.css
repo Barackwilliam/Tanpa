@@ -960,3 +960,5 @@ h1,h2,h3{overflow-wrap:break-word}
 }
 .footer a.btn-yellow,.footer a.btn-yellow:hover{color:var(--g-900)}
 .f-note{color:#9db7a6;font-size:.92rem;margin:0}
+/* mobile menu: one solid colour */
+@media(max-width:1120px){.nav-links{background:var(--g-950)!important}}
