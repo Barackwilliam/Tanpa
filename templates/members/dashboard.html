@@ -29,8 +29,8 @@
       </div>
       <div>
         {% if st == "active" %}<a class="btn btn-primary btn-lg" href="{% url 'members:id_card' %}">{% include "partials/icon.html" with name="download" size=18 %} Download ID card</a>
-        {% elif st == "pending" and fees %}<form method="post" action="{% url 'members:pay' 'joining' %}">{% csrf_token %}<button class="btn btn-yellow btn-lg" data-magnetic>Pay TZS {{ fees.joining_total|intcomma }} {% include "partials/icon.html" with name="arrow" size=18 %}</button></form>
-        {% elif st == "non_active" and fees %}<form method="post" action="{% url 'members:pay' 'annual' %}">{% csrf_token %}<input type="hidden" name="year" value="{{ year }}"><button class="btn btn-yellow btn-lg" data-magnetic>Renew {{ year }} {% include "partials/icon.html" with name="arrow" size=18 %}</button></form>{% endif %}
+        {% elif st == "pending" and fees %}<form method="post" action="{% url 'members:pay' 'joining' %}">{% csrf_token %}<button class="btn btn-yellow btn-lg">Pay TZS {{ fees.joining_total|intcomma }} {% include "partials/icon.html" with name="arrow" size=18 %}</button></form>
+        {% elif st == "non_active" and fees %}<form method="post" action="{% url 'members:pay' 'annual' %}">{% csrf_token %}<input type="hidden" name="year" value="{{ year }}"><button class="btn btn-yellow btn-lg">Renew {{ year }} {% include "partials/icon.html" with name="arrow" size=18 %}</button></form>{% endif %}
       </div>
     </div>
     {% endwith %}

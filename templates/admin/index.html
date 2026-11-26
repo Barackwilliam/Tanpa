@@ -17,6 +17,7 @@
       <a class="tp-btn glass" href="{% url 'admin:events_event_add' %}"><span class="ms">add</span> New event</a>
       <a class="tp-btn glass" href="{% url 'admin:core_post_add' %}"><span class="ms">edit_note</span> Write news</a>
       <a class="tp-btn glass" href="/" target="_blank"><span class="ms">open_in_new</span> View website</a>
+      <form method="post" action="{% url 'admin:logout' %}" style="margin:0">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin:login' %}"><button class="tp-btn glass" type="submit"><span class="ms">logout</span> Log out</button></form>
     </div>
   </section>
 

@@ -367,3 +367,9 @@ def event_registrations(request, pk):
         "event": event, "regs": qs, "f": request.GET, "qs": params.urlencode(),
         "statuses": EventRegistration.Status.choices,
     }))
+
+
+@staff_required
+def logout_confirm(request):
+    """Sidebar 'Log out' link: logging out needs a POST, so confirm on one screen."""
+    return render(request, "dashboard/logout.html", _admin_ctx(request, title="Log out"))

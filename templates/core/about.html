@@ -25,7 +25,7 @@
 {% if site.mission or site.vision or site.objectives_list or site.values_list %}
 <section class="section dark grain">
   <div class="wrap">
-    <div class="head center" data-reveal><span class="kicker light">What drives us</span><h2>Purpose with a <span class="grad-text">pulse</span></h2></div>
+    <div class="head center" data-reveal><span class="kicker light">Our purpose</span><h2>Mission, vision &amp; objectives</h2></div>
     {% if site.mission or site.vision %}
     <div class="bento" style="grid-auto-rows:auto;margin-bottom:18px">
       {% if site.mission %}<article class="tile t-b" data-reveal style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)"><div class="ic" style="background:rgba(255,214,10,.14);color:var(--y)">{% include "partials/icon.html" with name="award" %}</div><h3 style="color:#fff">Our mission</h3><p style="color:#b9cfc1;font-size:1.08rem">{{ site.mission }}</p></article>{% endif %}
@@ -44,7 +44,7 @@
 
 <section class="section" id="leadership">
   <div class="wrap">
-    <div class="head center" data-reveal><span class="kicker">Leadership</span><h2>National executive <span class="grad-text-dark">committee</span></h2></div>
+    <div class="head center" data-reveal><span class="kicker">Leadership</span><h2>National executive committee</h2></div>
     {% if leaders %}<div class="leaders">{% for l in leaders %}{% include "core/_leader.html" %}{% endfor %}</div>
     {% else %}<div class="coming" data-reveal>{% include "partials/icon.html" with name="users" %}<b style="color:var(--ink)">Leadership profiles coming soon</b></div>{% endif %}
   </div>

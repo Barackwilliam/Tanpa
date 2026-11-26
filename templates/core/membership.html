@@ -1,11 +1,11 @@
 {% extends "base.html" %}{% load humanize static %}
 {% block title %}Membership · {{ site.short_name }}{% endblock %}
 {% block content %}
-{% include "core/page_head.html" with title="Membership that works as hard as you do" subtitle="Join Tanzania's national body of non-physician anaesthesia providers, entirely online." crumb="Membership" %}
+{% include "core/page_head.html" with title="Membership" subtitle="Join Tanzania's national body of non-physician anaesthesia providers, entirely online." crumb="Membership" %}
 <section class="section dark grain" style="padding-top:90px">
   <div class="wrap">
     {% include "core/_journey.html" %}
-    <div class="center" style="margin-top:56px"><a class="btn btn-yellow btn-lg" href="{% url 'members:register' %}" data-magnetic>Start my registration {% include "partials/icon.html" with name="arrow" size=20 %}</a></div>
+    <div class="center" style="margin-top:56px"><a class="btn btn-yellow btn-lg" href="{% url 'members:register' %}">Start my registration {% include "partials/icon.html" with name="arrow" size=20 %}</a></div>
   </div>
 </section>
 
@@ -28,7 +28,7 @@
   <div class="wrap about-grid" style="align-items:start">
     <div data-reveal="left">
       <span class="kicker">Status explained</span>
-      <h2>Active or <span class="grad-text-dark">non-active?</span></h2>
+      <h2>Membership status</h2>
       <div style="display:grid;gap:14px;margin-top:1.5rem">
         <div class="card flat"><span class="pill active">Active member</span><p style="margin:.8rem 0 0">Entry fee paid <b>and</b> the current year's subscription paid. Can download the ID card and get the member rate at conferences.</p></div>
         <div class="card flat"><span class="pill non_active">Non-active member</span><p style="margin:.8rem 0 0">Registered, but this year's subscription isn't paid yet. Pay online at any time to become active again.</p></div>

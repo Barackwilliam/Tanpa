@@ -1,0 +1,12 @@
+{% extends "dashboard/_layout.html" %}
+{% block dash %}
+<div class="tp-card" style="max-width:520px;margin:40px auto;text-align:center;padding:40px 32px">
+  <span class="ms" style="font-size:48px;color:var(--tp-g)">logout</span>
+  <h1 style="font-size:22px;font-weight:800;margin:12px 0 6px;color:var(--tp-ink)">Log out of TANPA admin?</h1>
+  <p style="color:var(--tp-mute);margin:0 0 24px">Signed in as <b>{{ request.user.get_username }}</b></p>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <form method="post" action="{% url 'admin:logout' %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'admin:login' %}"><button class="tp-btn g" type="submit" autofocus><span class="ms">logout</span> Yes, log out</button></form>
+    <a class="tp-btn o" href="{% url 'admin:index' %}">Cancel</a>
+  </div>
+</div>
+{% endblock %}

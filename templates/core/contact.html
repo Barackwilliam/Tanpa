@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Contact · {{ site.short_name }}{% endblock %}
 {% block content %}
-{% include "core/page_head.html" with title="Let's talk" subtitle="Questions about membership, payments or the conference? The secretariat is here to help." crumb="Contact" %}
+{% include "core/page_head.html" with title="Contact us" subtitle="Questions about membership, payments or the conference? The secretariat is here to help." crumb="Contact" %}
 <section class="section">
   <div class="wrap contact-grid">
     <div class="cinfo" data-reveal="left">
@@ -14,7 +14,7 @@
     </div>
     <div class="card" data-reveal="right" style="padding:40px">
       <span class="kicker">Message</span>
-      <h2 style="font-size:2.2rem">Send us a note</h2>
+      <h2 style="font-size:2.2rem">Send a message</h2>
       <form method="post" novalidate>{% csrf_token %}
         {% if form.non_field_errors %}<div class="non-field">{{ form.non_field_errors|join:" " }}</div>{% endif %}
         <div class="form-grid">
@@ -25,7 +25,7 @@
           {% include "partials/field.html" with field=form.message class="full" %}
         </div>
         <div class="hp" aria-hidden="true">{{ form.website }}</div>
-        <button class="btn btn-primary btn-lg" style="margin-top:22px" data-magnetic>Send message {% include "partials/icon.html" with name="arrow" size=18 %}</button>
+        <button class="btn btn-primary btn-lg" style="margin-top:22px">Send message {% include "partials/icon.html" with name="arrow" size=18 %}</button>
       </form>
     </div>
   </div>

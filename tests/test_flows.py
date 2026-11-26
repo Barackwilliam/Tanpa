@@ -288,3 +288,15 @@ class EmptyDataTests(TestCase):
                     reverse("dashboard:payments"), reverse("dashboard:events")]:
             resp = self.client.get(url, follow=True)
             self.assertEqual(resp.status_code, 200, url)
+
+
+class AdminLogoutTests(TestCase):
+    def test_sidebar_logout_confirms_then_logs_out(self):
+        admin = User.objects.create_superuser("boss", "boss@tanpa.co.tz", "x")
+        self.client.force_login(admin)
+        page = self.client.get(reverse("dashboard:logout"))
+        self.assertContains(page, "Log out of TANPA admin?")
+        self.assertContains(self.client.get("/admin/"), reverse("dashboard:logout"))
+        resp = self.client.post(reverse("admin:logout"), {"next": reverse("admin:login")})
+        self.assertRedirects(resp, reverse("admin:login"), fetch_redirect_response=False)
+        self.assertEqual(self.client.get("/admin/").status_code, 302)

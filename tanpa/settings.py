@@ -350,6 +350,15 @@ UNFOLD = {
                     {"title": "Roles", "icon": "admin_panel_settings", "link": reverse_lazy("admin:auth_group_changelist")},
                 ],
             },
+            {
+                "title": "Account",
+                "separator": True,
+                "items": [
+                    {"title": "View website", "icon": "language", "link": "/"},
+                    {"title": "Change password", "icon": "key", "link": reverse_lazy("admin:password_change")},
+                    {"title": "Log out", "icon": "logout", "link": reverse_lazy("dashboard:logout")},
+                ],
+            },
         ],
     },
 }
