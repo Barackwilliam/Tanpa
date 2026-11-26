@@ -929,6 +929,4 @@ h1,h2,h3{overflow-wrap:break-word}
 .hero-grid-bg{background-image:linear-gradient(rgba(124,230,161,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(124,230,161,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse at 30% 40%,#000 0%,transparent 60%)}
 .phero .hero-grid-bg{mask-image:radial-gradient(ellipse at 75% 25%,#000 0%,transparent 55%)}
 .idc-back{background-image:linear-gradient(rgba(124,230,161,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,230,161,.04) 1px,transparent 1px)}
-.verify-band::after{opacity:.035;filter:brightness(0) invert(1)}
-.cta-xl::after{opacity:.035;filter:brightness(0) invert(1)}
 .grain::after{opacity:.03}
