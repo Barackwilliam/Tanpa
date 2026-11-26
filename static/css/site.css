@@ -663,3 +663,12 @@ a.ci:hover{transform:translateX(6px);border-color:var(--g-600);color:var(--ink)}
 .nav-shell.scrolled .nav-links a.btn-login,.page-light .nav-links a.btn-login{color:var(--g-700);background:transparent}
 .nav-links a.btn::after{display:none}
 @media(max-width:1120px){.nav-links a.btn,.nav-shell.scrolled .nav-links a.btn,.page-light .nav-links a.btn{font-family:var(--f-body);font-size:1rem;padding:1rem;justify-content:center}.nav-links a.btn-login{color:#fff!important;border-color:rgba(255,255,255,.3)}}
+/* Mobile menu: a backdrop-filter on .nav would trap the fixed overlay inside the bar. */
+@media(max-width:1120px){
+  .nav-open .nav,.nav-open .nav-shell.scrolled .nav,.nav-open.page-light .nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+  .nav-open .brand b{color:#fff!important}
+  .nav-open .brand small{color:rgba(255,255,255,.6)!important}
+  .nav-open .burger{background:rgba(255,255,255,.12)!important;color:#fff!important}
+  .nav-open{overflow:hidden}
+  .nav-links{overflow-y:auto;justify-content:flex-start;padding-top:110px}
+}
