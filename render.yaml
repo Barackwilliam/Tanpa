@@ -11,7 +11,7 @@ services:
     healthCheckPath: /healthz
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12.8
+        value: 3.13.5
       - key: DJANGO_DEBUG
         value: "false"
       - key: DJANGO_SECRET_KEY
