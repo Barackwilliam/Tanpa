@@ -1,0 +1,41 @@
+{% extends "dashboard/base.html" %}
+{% block dtitle %}Members{% endblock %}
+{% block dash %}
+<div class="dash-head">
+  <h1>Members database <span class="muted" style="font-size:1rem;font-weight:600">· {{ count }} found</span></h1>
+  <a class="btn btn-primary btn-sm" href="?{{ qs }}&export=csv">{% include "partials/icon.html" with name="download" size=16 %} Export CSV (Excel)</a>
+</div>
+<form class="filters" method="get">
+  <input type="search" name="q" value="{{ f.q }}" placeholder="Name, number, phone, email…" style="min-width:240px">
+  <select name="status">
+    <option value="">All statuses</option>
+    <option value="active" {% if f.status == "active" %}selected{% endif %}>Active</option>
+    <option value="non_active" {% if f.status == "non_active" %}selected{% endif %}>Non-active</option>
+    <option value="pending" {% if f.status == "pending" %}selected{% endif %}>Pending (not paid entry fee)</option>
+    <option value="suspended" {% if f.status == "suspended" %}selected{% endif %}>Suspended</option>
+  </select>
+  <select name="year">{% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>Status for {{ y }}</option>{% endfor %}</select>
+  <select name="region"><option value="">All regions</option>{% for v, l in regions %}<option value="{{ v }}" {% if f.region == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  <select name="cadre"><option value="">All cadres</option>{% for v, l in cadres %}<option value="{{ v }}" {% if f.cadre == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  <button class="btn btn-outline btn-sm">Filter</button>
+  {% if f %}<a class="btn btn-sm" href="{% url 'dashboard:members' %}">Clear</a>{% endif %}
+</form>
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Member No.</th><th>Name</th><th>Phone</th><th>Cadre</th><th>Region</th><th>Status {{ year }}</th></tr></thead>
+    <tbody>
+    {% for m, st in rows %}
+      <tr>
+        <td class="mono">{{ m.membership_number|default:"—" }}</td>
+        <td><a href="{% url 'dashboard:member' m.pk %}"><b>{{ m.full_name }}</b></a><br><span class="small muted">{{ m.user.email }}</span></td>
+        <td>{{ m.phone }}</td>
+        <td class="small">{{ m.get_cadre_display }}</td>
+        <td class="small">{{ m.region }}</td>
+        <td><span class="badge {{ st }}">{% if st == "active" %}Active{% elif st == "non_active" %}Non-active{% elif st == "pending" %}Pending{% else %}Suspended{% endif %}</span></td>
+      </tr>
+    {% empty %}<tr><td colspan="6" class="empty">No members match these filters.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "partials/pagination.html" %}
+{% endblock %}

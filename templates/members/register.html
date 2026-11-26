@@ -1,0 +1,45 @@
+{% extends "base.html" %}{% load humanize %}
+{% block title %}Join TANPA{% endblock %}
+{% block content %}
+{% include "core/page_head.html" with title="Become a TANPA member" subtitle="Create your account. After registering you will pay the entry fee and annual subscription to activate your membership." crumb="Join" %}
+<section class="section">
+  <div class="wrap">
+    <form class="card form-card" method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+      {% if form.non_field_errors %}<div class="non-field">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+      {% if form.errors %}<div class="non-field">Please correct the highlighted fields below.</div>{% endif %}
+      <div class="form-grid">
+        <div class="form-section full">1 · Account</div>
+        {% include "partials/field.html" with field=form.email class="full" %}
+        {% include "partials/field.html" with field=form.password1 %}
+        {% include "partials/field.html" with field=form.password2 %}
+
+        <div class="form-section full">2 · Personal details</div>
+        {% include "partials/field.html" with field=form.title %}
+        {% include "partials/field.html" with field=form.first_name %}
+        {% include "partials/field.html" with field=form.middle_name %}
+        {% include "partials/field.html" with field=form.last_name %}
+        {% include "partials/field.html" with field=form.gender %}
+        {% include "partials/field.html" with field=form.date_of_birth %}
+        {% include "partials/field.html" with field=form.phone %}
+        {% include "partials/field.html" with field=form.national_id %}
+
+        <div class="form-section full">3 · Professional details</div>
+        {% include "partials/field.html" with field=form.cadre %}
+        {% include "partials/field.html" with field=form.professional_reg_no %}
+        {% include "partials/field.html" with field=form.workplace class="full" %}
+        {% include "partials/field.html" with field=form.region %}
+        {% include "partials/field.html" with field=form.district %}
+
+        <div class="form-section full">4 · Passport photo</div>
+        {% include "partials/field.html" with field=form.photo class="full" %}
+        {% include "partials/field.html" with field=form.agree class="full" %}
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:24px;padding-top:20px;border-top:1px solid var(--line)">
+        <p class="small muted" style="margin:0">Next step: pay <b>TZS {{ fees.entry_fee|add:fees.annual_fee|intcomma }}</b> (entry fee + {{ fees.year }} subscription).</p>
+        <button class="btn btn-primary">Create my account</button>
+      </div>
+      <p class="small muted" style="margin:1rem 0 0">Already registered? <a href="{% url 'login' %}">Sign in</a>.</p>
+    </form>
+  </div>
+</section>
+{% endblock %}

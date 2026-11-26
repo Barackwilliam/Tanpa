@@ -1,0 +1,7 @@
+<section class="page-head">
+  <div class="wrap">
+    <div class="crumbs"><a href="{% url 'core:home' %}">Home</a> / {{ crumb|default:title }}</div>
+    <h1>{{ title }}</h1>
+    {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+  </div>
+</section>

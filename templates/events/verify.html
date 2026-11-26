@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Badge check · TANPA{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:48px">
+  <div class="wrap">
+    <div class="card verify-card">
+      {% if reg.status == "confirmed" %}<div class="verify-banner ok">✔ VALID REGISTRATION</div>{% else %}<div class="verify-banner bad">✖ NOT CONFIRMED ({{ reg.get_status_display }})</div>{% endif %}
+      <h2 style="margin-bottom:.2rem">{{ reg.full_name }}</h2>
+      <p class="muted">{{ reg.institution }}</p>
+      <p><b>{{ reg.event.title }}</b><br><span class="small muted">Badge No. {{ reg.badge_number }} · {{ reg.get_category_display }}</span></p>
+      {% if reg.checked_in_at %}<p class="badge confirmed">Checked in {{ reg.checked_in_at|date:"j M, H:i" }}</p>
+      {% elif user.is_staff and reg.status == "confirmed" %}
+        <form method="post" action="{% url 'events:check_in' reg.badge_token %}">{% csrf_token %}<button class="btn btn-primary btn-block">Check in now</button></form>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

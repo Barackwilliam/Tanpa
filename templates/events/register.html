@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% load humanize %}
+{% block title %}Register · {{ event.title }}{% endblock %}
+{% block content %}
+{% include "core/page_head.html" with title="Event registration" subtitle=event.title crumb="Conferences" %}
+<section class="section">
+  <div class="wrap checkout">
+    <form class="card" method="post" novalidate>{% csrf_token %}
+      <h3>Your details</h3>
+      {% include "partials/form.html" %}
+      <button class="btn btn-primary" style="margin-top:18px">{% if fee %}Continue to payment{% else %}Confirm registration{% endif %}</button>
+    </form>
+    <aside class="card summary">
+      <span class="muted small">Your fee</span>
+      <div class="amount">{% if fee %}TZS {{ fee|intcomma }}{% else %}Free{% endif %}</div>
+      <p class="small">{% if member.is_active_member %}Member rate applied — you are an active member.{% else %}Non-member rate. <a href="{% url 'members:dashboard' %}">Activate your membership</a> first to get the member rate (TZS {{ event.member_fee|intcomma }}).{% endif %}</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}

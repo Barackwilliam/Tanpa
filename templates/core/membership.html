@@ -1,0 +1,49 @@
+{% extends "base.html" %}{% load humanize %}
+{% block title %}Membership · {{ site.short_name }}{% endblock %}
+{% block content %}
+{% include "core/page_head.html" with title="Membership" subtitle="Join the national body of non-physician anaesthesia providers and grow with your profession." %}
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><span class="eyebrow">How to join</span><h2>Four steps to an active membership</h2></div>
+    <div class="steps">
+      <div class="step"><h3>Create an account</h3><p class="muted small">Register with your email, professional details and a passport photo.</p></div>
+      <div class="step"><h3>Pay your fees</h3><p class="muted small">Pay the entry fee and the annual subscription by mobile money or bank.</p></div>
+      <div class="step"><h3>Get your number</h3><p class="muted small">Once your payment is confirmed you receive a permanent TANPA membership number.</p></div>
+      <div class="step"><h3>Download your ID</h3><p class="muted small">Print your ID card. Renew every year to stay active.</p></div>
+    </div>
+  </div>
+</section>
+<section class="section soft">
+  <div class="wrap grid-2" style="align-items:start">
+    <div>
+      <span class="eyebrow">Fees for {{ fees.year }}</span>
+      <h2>Membership fees</h2>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="table">
+          <tr><td>Entry fee (kiingilio), paid once</td><td style="text-align:right"><b>TZS {{ fees.entry_fee|intcomma }}</b></td></tr>
+          <tr><td>Annual subscription (ada ya mwaka)</td><td style="text-align:right"><b>TZS {{ fees.annual_fee|intcomma }}</b></td></tr>
+          <tr><td><b>New member total</b></td><td style="text-align:right"><b style="color:var(--green-700)">TZS {{ fees.entry_fee|add:fees.annual_fee|intcomma }}</b></td></tr>
+        </table>
+      </div>
+      <h3 style="margin-top:2rem">Who is an active member?</h3>
+      <div class="grid-2" style="gap:14px;margin-top:.8rem">
+        <div class="card"><span class="badge active">Active</span><p class="small" style="margin:.6rem 0 0">Entry fee paid <b>and</b> the annual subscription for the current year paid.</p></div>
+        <div class="card"><span class="badge non_active">Non-active</span><p class="small" style="margin:.6rem 0 0">A registered member who has not yet paid this year's subscription.</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Membership benefits</h3>
+      <ul class="checklist">
+        <li>Official TANPA membership number and ID card</li>
+        <li>Reduced fees for the annual scientific conference &amp; AGM</li>
+        <li>Continuous professional development (CPD) opportunities</li>
+        <li>A voice in national anaesthesia policy and advocacy</li>
+        <li>Networking with anaesthesia providers across all regions</li>
+        <li>Voting rights at the Annual General Meeting</li>
+      </ul>
+      <a class="btn btn-primary btn-block" href="{% url 'members:register' %}">Register now</a>
+      <p class="small muted center" style="margin:.8rem 0 0">Already a member? <a href="{% url 'login' %}">Sign in</a> to renew.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

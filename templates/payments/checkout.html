@@ -1,0 +1,81 @@
+{% extends "base.html" %}{% load humanize %}
+{% block title %}Pay {{ payment.reference }} · TANPA{% endblock %}
+{% block content %}
+{% include "core/page_head.html" with title="Complete your payment" subtitle=payment.description crumb="Payment" %}
+<section class="section" style="padding-top:48px">
+  <div class="wrap checkout">
+    <div>
+      {% if payment.status == "awaiting" %}
+        <div class="status-panel pending" style="margin-bottom:18px"><div class="status-icon">{% include "partials/icon.html" with name="clock" %}</div><div><h3>Waiting for confirmation</h3><p>You submitted transaction <b>{{ payment.external_reference }}</b>. The treasurer will confirm it shortly.</p></div></div>
+      {% elif payment.status == "failed" or payment.status == "cancelled" %}
+        <div class="status-panel non_active" style="margin-bottom:18px"><div class="status-icon">{% include "partials/icon.html" with name="x" %}</div><div><h3>This payment was not completed</h3><p>Please start a new payment from your portal.</p><a class="btn btn-primary btn-sm" href="{% url 'members:dashboard' %}">Go to my portal</a></div></div>
+      {% endif %}
+
+      {% if payment.is_open %}
+      <h2 style="font-size:1.3rem">Choose how to pay</h2>
+
+      {% if mobile_enabled %}
+      <details class="method" {% if not open_manual %}open{% endif %}>
+        <summary><span class="icon-badge" style="margin:0">{% include "partials/icon.html" with name="pay" %}</span><span>Mobile money<small>M-Pesa, Mixx by Yas, Airtel Money, HaloPesa — approve on your phone</small></span></summary>
+        <div class="inner">
+          <form method="post" action="{% url 'payments:mobile' payment.reference %}">{% csrf_token %}
+            <div class="form-grid">
+              {% include "partials/field.html" with field=mobile_form.provider %}
+              {% include "partials/field.html" with field=mobile_form.phone %}
+            </div>
+            <p class="small muted" style="margin:.8rem 0">You will receive a prompt on your phone. Enter your PIN to approve TZS {{ payment.amount|intcomma }}.</p>
+            <button class="btn btn-primary">Send payment request</button>
+          </form>
+        </div>
+      </details>
+      {% endif %}
+
+      {% if manual_enabled %}
+      <details class="method" {% if open_manual or not mobile_enabled %}open{% endif %}>
+        <summary><span class="icon-badge yellow" style="margin:0">{% include "partials/icon.html" with name="bank" %}</span><span>Bank or Lipa number<small>Pay first, then submit your transaction number</small></span></summary>
+        <div class="inner">
+          <div class="paybox">
+            {% if site.mobile_lipa_number %}<div><span>Lipa number</span><b>{{ site.mobile_lipa_number }}</b></div>{% if site.mobile_lipa_name %}<div><span>Name</span><b>{{ site.mobile_lipa_name }}</b></div>{% endif %}{% endif %}
+            {% if site.bank_account_number %}<div><span>Bank</span><b>{{ site.bank_name }}</b></div><div><span>Account name</span><b>{{ site.bank_account_name }}</b></div><div><span>Account number</span><b>{{ site.bank_account_number }}</b></div>{% endif %}
+            <div><span>Amount</span><b>TZS {{ payment.amount|intcomma }}</b></div>
+            <div><span>Reference / description</span><b>{{ payment.reference }}</b></div>
+          </div>
+          {% if site.payment_note %}<p class="small muted">{{ site.payment_note }}</p>{% endif %}
+          <form method="post" action="{% url 'payments:manual' payment.reference %}" enctype="multipart/form-data" novalidate>{% csrf_token %}
+            {% include "partials/form.html" with form=manual_form %}
+            <button class="btn btn-primary" style="margin-top:16px">Submit payment details</button>
+          </form>
+        </div>
+      </details>
+      {% endif %}
+
+      {% if not mobile_enabled and not manual_enabled %}
+      <div class="card" style="margin-bottom:14px"><h3>Online payment is being set up</h3><p>Please contact the TANPA secretariat on <a href="tel:{{ site.phone|cut:' ' }}">{{ site.phone }}</a> to pay. Quote reference <b>{{ payment.reference }}</b>.</p></div>
+      {% endif %}
+
+      {% if payment_sandbox %}
+      <details class="method">
+        <summary><span class="icon-badge navy" style="margin:0">{% include "partials/icon.html" with name="settings" %}</span><span>Test mode<small>Only visible while PAYMENT_SANDBOX is on. Simulates a successful payment.</small></span></summary>
+        <div class="inner"><form method="post" action="{% url 'payments:sandbox' payment.reference %}">{% csrf_token %}<button class="btn btn-outline">Simulate successful payment</button></form></div>
+      </details>
+      {% endif %}
+
+      {% if payment.status == "pending" %}
+      <form method="post" action="{% url 'payments:cancel' payment.reference %}" style="margin-top:10px">{% csrf_token %}<button class="btn btn-danger btn-sm">Cancel this payment</button></form>
+      {% endif %}
+      {% endif %}
+    </div>
+
+    <aside class="card summary">
+      <span class="muted small">Amount to pay</span>
+      <div class="amount">TZS {{ payment.amount|intcomma }}</div>
+      <dl>
+        <dt>For</dt><dd>{{ payment.description }}</dd>
+        <dt>Reference</dt><dd class="mono">{{ payment.reference }}</dd>
+        <dt>Status</dt><dd><span class="badge {{ payment.status }}">{{ payment.get_status_display }}</span></dd>
+        <dt>Created</dt><dd>{{ payment.created|date:"j M Y, H:i" }}</dd>
+      </dl>
+    </aside>
+  </div>
+</section>
+{% endblock %}

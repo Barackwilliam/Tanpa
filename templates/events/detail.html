@@ -1,0 +1,54 @@
+{% extends "base.html" %}{% load humanize static %}
+{% block title %}{{ event.title }} · TANPA{% endblock %}
+{% block description %}{{ event.summary|default:event.theme }}{% endblock %}
+{% block content %}
+<section class="hero" style="min-height:0">
+  <div class="hero-bg" style="background-image:url('{% if event.banner %}{{ event.banner.url }}{% else %}{% static 'img/gallery/tanpa-02.jpg' %}{% endif %}')"></div>
+  <div class="wrap" style="padding-top:64px;padding-bottom:72px;grid-template-columns:1fr">
+    <div>
+      <span class="pill"><i></i> {{ event.get_kind_display }}</span>
+      <h1 style="max-width:22em;font-size:clamp(1.8rem,4vw,2.8rem)">{{ event.title }}</h1>
+      {% if event.theme %}<p class="lead"><b style="color:var(--yellow)">Theme:</b> {{ event.theme }}</p>{% endif %}
+      <p style="display:flex;gap:1.4rem;flex-wrap:wrap;color:#e3efe7;margin:1rem 0 0">
+        <span>{% include "partials/icon.html" with name="calendar" size=17 %} {{ event.start_date|date:"j M" }} – {{ event.end_date|date:"j M Y" }}</span>
+        <span>{% include "partials/icon.html" with name="pin" size=17 %} {{ event.venue }}, {{ event.city }}</span>
+        {% if event.cpd_points %}<span>{% include "partials/icon.html" with name="award" size=17 %} {{ event.cpd_points }} CPD points</span>{% endif %}
+      </p>
+    </div>
+  </div>
+</section>
+<section class="section">
+  <div class="wrap checkout">
+    <div class="prose">
+      {% if event.summary %}<p style="font-size:1.15rem;color:var(--ink)">{{ event.summary }}</p>{% endif %}
+      {{ event.description|linebreaks }}
+    </div>
+    <aside class="card summary">
+      {% if registration and registration.status == "confirmed" %}
+        <span class="badge confirmed">You are registered</span>
+        <h3 style="margin-top:.8rem">Badge No. {{ registration.badge_number }}</h3>
+        <p class="small muted">Download your badge and bring it (printed or on your phone) to the registration desk.</p>
+        <a class="btn btn-primary btn-block" href="{% url 'events:badge' event.slug %}">{% include "partials/icon.html" with name="download" size=17 %} Download badge</a>
+      {% elif registration and registration.status == "pending" %}
+        <span class="badge pending">Awaiting payment</span>
+        <div class="amount">TZS {{ registration.amount|intcomma }}</div>
+        <a class="btn btn-primary btn-block" href="{% url 'events:pay' event.slug %}">Complete payment</a>
+      {% else %}
+        <span class="muted small">Registration fee</span>
+        <div class="amount">{% if fee %}TZS {{ fee|intcomma }}{% else %}Free{% endif %}</div>
+        <dl style="margin-bottom:1.2rem">
+          <dt>Active members</dt><dd>{% if event.member_fee %}TZS {{ event.member_fee|intcomma }}{% else %}Free{% endif %}</dd>
+          {% if not event.members_only %}<dt>Non-members</dt><dd>{% if event.non_member_fee %}TZS {{ event.non_member_fee|intcomma }}{% else %}Free{% endif %}</dd>{% endif %}
+          {% if event.registration_deadline %}<dt>Deadline</dt><dd>{{ event.registration_deadline|date:"j M Y" }}</dd>{% endif %}
+        </dl>
+        {% if event.can_register %}
+          {% if user.is_authenticated %}<a class="btn btn-primary btn-block" href="{% url 'events:register' event.slug %}">Register now</a>
+          {% else %}<a class="btn btn-primary btn-block" href="{% url 'login' %}?next={% url 'events:register' event.slug %}">Sign in to register</a>
+          <p class="small muted center" style="margin:.7rem 0 0">No account? <a href="{% url 'members:register' %}">Create one</a></p>{% endif %}
+        {% elif event.is_full %}<p class="badge non_active">Fully booked</p>
+        {% else %}<p class="muted small" style="margin:0">Registration is closed.</p>{% endif %}
+      {% endif %}
+    </aside>
+  </div>
+</section>
+{% endblock %}

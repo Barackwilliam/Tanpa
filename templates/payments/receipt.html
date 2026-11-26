@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% load humanize static %}
+{% block title %}Receipt {{ payment.reference }} · TANPA{% endblock %}
+{% block head %}<style>@media print{.topbar,.header,.footer,.no-print,.messages{display:none!important}.section{padding:0!important}}</style>{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="wrap">
+    <div class="card" style="max-width:640px;margin:0 auto;padding:36px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;border-bottom:2px solid var(--green);padding-bottom:16px;margin-bottom:20px">
+        <div style="display:flex;gap:12px;align-items:center"><img src="{% static 'img/tanpa-logo-256.png' %}" width="56" height="56" alt=""><div><b style="color:var(--green-700)">{{ site.short_name }}</b><br><span class="small muted">{{ site.name }}</span></div></div>
+        <span class="badge paid">PAID</span>
+      </div>
+      <h2 style="font-size:1.3rem">Payment receipt</h2>
+      <table class="table">
+        <tr><td class="muted">Receipt / reference</td><td class="mono"><b>{{ payment.reference }}</b></td></tr>
+        <tr><td class="muted">Received from</td><td>{% if payment.user.member %}{{ payment.user.member.display_name }}{% if payment.user.member.membership_number %} ({{ payment.user.member.membership_number }}){% endif %}{% else %}{{ payment.user.email }}{% endif %}</td></tr>
+        <tr><td class="muted">For</td><td>{{ payment.description }}</td></tr>
+        <tr><td class="muted">Amount</td><td><b>TZS {{ payment.amount|intcomma }}</b></td></tr>
+        <tr><td class="muted">Method</td><td>{{ payment.get_method_display }}{% if payment.provider %} · {{ payment.provider }}{% endif %}</td></tr>
+        {% if payment.external_reference %}<tr><td class="muted">Transaction no.</td><td class="mono">{{ payment.external_reference }}</td></tr>{% endif %}
+        <tr><td class="muted">Date paid</td><td>{{ payment.paid_at|date:"j F Y, H:i" }}</td></tr>
+      </table>
+      <div class="no-print" style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:24px">
+        <button class="btn btn-outline" onclick="window.print()">Print receipt</button>
+        {% if payment.purpose == "event" %}<a class="btn btn-primary" href="{{ payment.event_registration.event.get_absolute_url }}">Go to event &amp; badge</a>
+        {% else %}<a class="btn btn-primary" href="{% url 'members:dashboard' %}">Back to my portal</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

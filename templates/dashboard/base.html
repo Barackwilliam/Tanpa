@@ -1,0 +1,32 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}{% block dtitle %}Dashboard{% endblock %} · TANPA staff{% endblock %}
+{% block shell %}
+<div class="dash">
+  <aside>
+    <a class="brand" href="{% url 'dashboard:home' %}"><img src="{% static 'img/tanpa-logo-256.png' %}" width="44" height="44" alt=""><div><strong>TANPA</strong><span>Staff dashboard</span></div></a>
+    {% with p=request.path %}
+    <nav>
+      <a href="{% url 'dashboard:home' %}" class="{% if p == '/manage/' %}active{% endif %}">Overview</a>
+      <a href="{% url 'dashboard:members' %}" class="{% if '/manage/members' in p %}active{% endif %}">Members database</a>
+      <a href="{% url 'dashboard:payments' %}" class="{% if '/manage/payments' in p %}active{% endif %}">Payments</a>
+      <a href="{% url 'dashboard:events' %}" class="{% if '/manage/events' in p %}active{% endif %}">Events &amp; registrations</a>
+      <div class="sep"></div>
+      <a href="{% url 'admin:payments_feeschedule_changelist' %}">Fees</a>
+      <a href="{% url 'admin:events_event_changelist' %}">Edit events</a>
+      <a href="{% url 'admin:core_post_changelist' %}">News</a>
+      <a href="{% url 'admin:core_galleryimage_changelist' %}">Gallery</a>
+      <a href="{% url 'admin:core_leader_changelist' %}">Leaders</a>
+      <a href="{% url 'admin:core_contactmessage_changelist' %}">Messages</a>
+      <a href="{% url 'admin:core_sitesettings_change' 1 %}">Website settings</a>
+      <div class="sep"></div>
+      <a href="{% url 'core:home' %}">View website</a>
+      <form method="post" action="{% url 'logout' %}" style="padding:0 .8rem">{% csrf_token %}<button class="btn btn-ghost-light btn-sm" style="margin-top:.4rem">Sign out</button></form>
+    </nav>
+    {% endwith %}
+  </aside>
+  <main>
+    {% include "partials/messages.html" %}
+    {% block dash %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

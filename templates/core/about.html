@@ -1,0 +1,44 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}About · {{ site.short_name }}{% endblock %}
+{% block content %}
+{% include "core/page_head.html" with title="About TANPA" subtitle=site.tagline %}
+<section class="section">
+  <div class="wrap grid-2" style="align-items:start">
+    <div class="prose">
+      <span class="eyebrow">Our story</span>
+      <h2>{{ site.name }}</h2>
+      {{ site.about|linebreaks }}
+      {% if site.founded_year %}<p class="muted">Established {{ site.founded_year }}.</p>{% endif %}
+    </div>
+    <div class="photo-stack"><img src="{% static 'img/gallery/tanpa-08.jpg' %}" alt="TANPA leaders on an official visit" loading="lazy"></div>
+  </div>
+</section>
+<section class="section soft">
+  <div class="wrap">
+    <div class="grid-2" style="align-items:stretch">
+      <div class="card"><div class="icon-badge">{% include "partials/icon.html" with name="award" %}</div><h3>Our mission</h3><p>{{ site.mission }}</p></div>
+      <div class="card"><div class="icon-badge yellow">{% include "partials/icon.html" with name="heart" %}</div><h3>Our vision</h3><p>{{ site.vision }}</p></div>
+    </div>
+    <div class="card" style="margin-top:24px">
+      <h3>Our objectives</h3>
+      <ul class="checklist">{% for o in site.objectives_list %}<li>{{ o }}</li>{% endfor %}</ul>
+    </div>
+  </div>
+</section>
+<section class="section" id="leadership">
+  <div class="wrap">
+    <div class="section-head center"><span class="eyebrow">Leadership</span><h2>National executive committee</h2></div>
+    {% if leaders %}
+    <div class="grid-4">
+      {% for l in leaders %}
+      <div class="leader card">
+        {% if l.photo %}<img class="avatar" src="{{ l.photo.url }}" alt="{{ l.name }}" loading="lazy">{% else %}<div class="avatar placeholder">{{ l.name|slice:":1" }}</div>{% endif %}
+        <h3>{{ l.name }}</h3><p class="muted small" style="margin:0">{{ l.position }}</p>
+        {% if l.bio %}<p class="small" style="margin-top:.6rem">{{ l.bio|truncatewords:30 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<p class="center muted">Leadership details will be published soon.</p>{% endif %}
+  </div>
+</section>
+{% endblock %}

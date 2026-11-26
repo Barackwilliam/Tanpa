@@ -1,0 +1,11 @@
+<div class="member-card">
+  {% if member.photo %}<img class="photo" src="{{ member.photo.url }}" alt="">{% else %}<div class="photo"></div>{% endif %}
+  <h2>{{ member.display_name }}</h2>
+  <div class="num">{{ member.membership_number|default:"Number issued after payment" }}</div>
+  <dl>
+    <dt>Status</dt><dd><span class="badge {{ member.status }}">{{ member.status_label }}</span></dd>
+    <dt>Cadre</dt><dd>{{ member.get_cadre_display }}</dd>
+    <dt>Region</dt><dd>{{ member.region }}</dd>
+    {% if member.joined_on %}<dt>Joined</dt><dd>{{ member.joined_on|date:"j M Y" }}</dd>{% endif %}
+  </dl>
+</div>

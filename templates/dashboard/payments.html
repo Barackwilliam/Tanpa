@@ -1,0 +1,34 @@
+{% extends "dashboard/base.html" %}{% load humanize %}
+{% block dtitle %}Payments{% endblock %}
+{% block dash %}
+<div class="dash-head">
+  <h1>Payments</h1>
+  <a class="btn btn-primary btn-sm" href="?{{ qs }}&export=csv">{% include "partials/icon.html" with name="download" size=16 %} Export CSV</a>
+</div>
+<form class="filters" method="get">
+  <input type="search" name="q" value="{{ f.q }}" placeholder="Reference, txn no., name, phone…" style="min-width:240px">
+  <select name="status"><option value="">All statuses</option>{% for v, l in statuses %}<option value="{{ v }}" {% if status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  <select name="purpose"><option value="">All types</option>{% for v, l in purposes %}<option value="{{ v }}" {% if f.purpose == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  <button class="btn btn-outline btn-sm">Filter</button>
+</form>
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Date</th><th>Reference</th><th>Member</th><th>For</th><th>Amount</th><th>Method / txn</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for p in page %}
+      <tr>
+        <td class="small">{{ p.created|date:"j M Y H:i" }}</td>
+        <td class="mono">{{ p.reference }}</td>
+        <td>{% if p.user.member %}<a href="{% url 'dashboard:member' p.user.member.pk %}">{{ p.user.member.full_name }}</a><br><span class="small muted mono">{{ p.user.member.membership_number|default:"" }}</span>{% else %}{{ p.user.email }}{% endif %}</td>
+        <td class="small">{{ p.description }}</td>
+        <td><b>{{ p.amount|intcomma }}</b></td>
+        <td class="small">{{ p.get_method_display }}{% if p.provider %} · {{ p.provider }}{% endif %}<br><span class="mono">{{ p.external_reference }}</span>{% if p.proof %} · <a href="{{ p.proof.url }}" target="_blank">slip</a>{% endif %}</td>
+        <td><span class="badge {{ p.status }}">{{ p.get_status_display }}</span>{% if p.confirmed_by %}<br><span class="small muted">by {{ p.confirmed_by.get_username }}</span>{% endif %}</td>
+        <td style="white-space:nowrap">{% if p.status == "awaiting" or p.status == "pending" %}{% include "dashboard/_payment_actions.html" %}{% endif %}</td>
+      </tr>
+    {% empty %}<tr><td colspan="8" class="empty">No payments found.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% include "partials/pagination.html" %}
+{% endblock %}

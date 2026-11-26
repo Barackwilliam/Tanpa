@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Contact · {{ site.short_name }}{% endblock %}
+{% block content %}
+{% include "core/page_head.html" with title="Contact us" subtitle="Questions about membership, payments or the conference? We are happy to help." %}
+<section class="section">
+  <div class="wrap grid-2" style="align-items:start">
+    <div>
+      <div class="card" style="display:grid;gap:18px">
+        <div style="display:flex;gap:14px"><div class="icon-badge" style="margin:0">{% include "partials/icon.html" with name="phone" %}</div><div><b>Phone</b><br><a href="tel:{{ site.phone|cut:' ' }}">{{ site.phone }}</a></div></div>
+        <div style="display:flex;gap:14px"><div class="icon-badge yellow" style="margin:0">{% include "partials/icon.html" with name="mail" %}</div><div><b>Email</b><br><a href="mailto:{{ site.email }}">{{ site.email }}</a></div></div>
+        <div style="display:flex;gap:14px"><div class="icon-badge navy" style="margin:0">{% include "partials/icon.html" with name="pin" %}</div><div><b>Office</b><br>{{ site.address }}{% if site.po_box %}<br>{{ site.po_box }}{% endif %}</div></div>
+        {% if site.whatsapp %}<a class="btn btn-primary" href="https://wa.me/{{ site.whatsapp }}" target="_blank" rel="noopener">Chat on WhatsApp</a>{% endif %}
+      </div>
+    </div>
+    <div class="card">
+      <h3>Send us a message</h3>
+      <form method="post" novalidate>{% csrf_token %}
+        {% if form.non_field_errors %}<div class="non-field">{{ form.non_field_errors|join:" " }}</div>{% endif %}
+        <div class="form-grid">
+          {% include "partials/field.html" with field=form.name %}
+          {% include "partials/field.html" with field=form.email %}
+          {% include "partials/field.html" with field=form.phone %}
+          {% include "partials/field.html" with field=form.subject %}
+          {% include "partials/field.html" with field=form.message class="full" %}
+        </div>
+        <div class="hp" aria-hidden="true">{{ form.website }}</div>
+        <button class="btn btn-primary" style="margin-top:18px">Send message</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

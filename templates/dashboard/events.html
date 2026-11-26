@@ -1,0 +1,20 @@
+{% extends "dashboard/base.html" %}
+{% block dtitle %}Events{% endblock %}
+{% block dash %}
+<div class="dash-head"><h1>Events &amp; registrations</h1><a class="btn btn-primary btn-sm" href="{% url 'admin:events_event_add' %}">+ New event</a></div>
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Event</th><th>Dates</th><th>Confirmed</th><th>Awaiting payment</th><th>Checked in</th><th></th></tr></thead>
+    {% for e in events %}
+    <tr>
+      <td><b>{{ e.title }}</b><br><span class="small muted">{{ e.city }}{% if not e.is_published %} · unpublished{% endif %}</span></td>
+      <td class="small">{{ e.start_date|date:"j M" }} – {{ e.end_date|date:"j M Y" }}</td>
+      <td><b>{{ e.confirmed }}</b>{% if e.capacity %}/{{ e.capacity }}{% endif %}</td>
+      <td>{{ e.pending }}</td>
+      <td>{{ e.checked_in }}</td>
+      <td style="white-space:nowrap"><a class="btn btn-outline btn-sm" href="{% url 'dashboard:event_registrations' e.pk %}">Registrations</a> <a class="btn btn-sm" href="{% url 'admin:events_event_change' e.pk %}">Edit</a></td>
+    </tr>
+    {% empty %}<tr><td colspan="6" class="empty">No events yet.</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

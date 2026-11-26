@@ -1,0 +1,14 @@
+{% load humanize %}{% autoescape off %}Hello {{ payment.user.first_name|default:"member" }},
+
+We have received your payment. Thank you!
+
+Reference:   {{ payment.reference }}
+For:         {{ payment.description }}
+Amount:      TZS {{ payment.amount|intcomma }}
+Date:        {{ payment.paid_at|date:"j F Y, H:i" }}
+{% if payment.user.member.membership_number %}Membership:  {{ payment.user.member.membership_number }}
+{% endif %}
+View your portal: {{ SITE_URL }}/portal/
+
+TANPA Secretariat
+{% endautoescape %}

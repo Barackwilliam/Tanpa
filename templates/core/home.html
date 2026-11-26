@@ -1,0 +1,170 @@
+{% extends "base.html" %}{% load static humanize %}
+{% block content %}
+<section class="hero">
+  <div class="hero-bg" style="background-image:url('{% static 'img/gallery/tanpa-02.jpg' %}')"></div>
+  <div class="wrap">
+    <div>
+      <span class="pill"><i></i> Official professional body · Tanzania</span>
+      <h1>Safe anaesthesia for <em>every patient</em>, in every hospital.</h1>
+      <p class="lead">{{ site.hero_intro }}</p>
+      <div class="actions">
+        <a class="btn btn-yellow" href="{% url 'members:register' %}">Become a member {% include "partials/icon.html" with name="arrow" size=18 %}</a>
+        <a class="btn btn-ghost-light" href="{% url 'login' %}">Member portal</a>
+      </div>
+    </div>
+    {% if next_event %}
+    <aside class="hero-card">
+      <span class="tag">{{ next_event.get_kind_display }}</span>
+      <h3>{{ next_event.title }}</h3>
+      {% if next_event.theme %}<p class="muted small" style="margin:0">Theme: {{ next_event.theme }}</p>{% endif %}
+      <div class="meta">
+        <div>{% include "partials/icon.html" with name="calendar" size=17 %}<span>{{ next_event.start_date|date:"j M" }} – {{ next_event.end_date|date:"j M Y" }}</span></div>
+        <div>{% include "partials/icon.html" with name="pin" size=17 %}<span>{{ next_event.venue }}, {{ next_event.city }}</span></div>
+      </div>
+      <a class="btn btn-primary btn-block" href="{{ next_event.get_absolute_url }}">{% if next_event.can_register %}Register now{% else %}View details{% endif %}</a>
+    </aside>
+    {% else %}
+    <aside class="hero-card">
+      <span class="tag">Membership {% now "Y" %}</span>
+      <h3>Join in three simple steps</h3>
+      <ul class="checklist small">
+        <li>Create your account online</li>
+        <li>Pay entry fee &amp; annual subscription by mobile money</li>
+        <li>Download your membership ID card</li>
+      </ul>
+      <a class="btn btn-primary btn-block" href="{% url 'members:register' %}">Get started</a>
+    </aside>
+    {% endif %}
+  </div>
+</section>
+
+<div class="stats">
+  <div class="wrap">
+    <div class="grid">
+      <div class="stat"><b>{{ member_count|intcomma }}</b><span>Registered members</span></div>
+      <div class="stat"><b>{{ active_count|intcomma }}</b><span>Active members {% now "Y" %}</span></div>
+      <div class="stat"><b>{{ region_count }}</b><span>Regions represented</span></div>
+      <div class="stat"><b>{{ event_count }}</b><span>Conferences &amp; meetings</span></div>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="wrap grid-2">
+    <div class="photo-stack">
+      <img src="{% static 'img/gallery/tanpa-01.jpg' %}" alt="TANPA members at the annual scientific conference" loading="lazy">
+      <div class="float">4th International Anaesthesia Scientific Conference &amp; AGM</div>
+    </div>
+    <div>
+      <span class="eyebrow">Who we are</span>
+      <h2>The professional home of non-physician anaesthetists in Tanzania</h2>
+      <p>{{ site.about|linebreaksbr|truncatewords_html:60 }}</p>
+      <ul class="checklist">
+        {% for o in site.objectives_list|slice:":3" %}<li>{{ o }}</li>{% endfor %}
+      </ul>
+      <a class="btn btn-outline" href="{% url 'core:about' %}">Learn more about TANPA</a>
+    </div>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head center center">
+      <span class="eyebrow">Everything online</span>
+      <h2>Your membership, in your pocket</h2>
+      <p class="muted">No more paper forms or waiting at the office. Register, pay and get your ID card from your phone.</p>
+    </div>
+    <div class="grid-4">
+      <div class="card lift"><div class="icon-badge">{% include "partials/icon.html" with name="user" %}</div><h3>Register online</h3><p class="muted small">Fill in your professional details and upload a passport photo.</p></div>
+      <div class="card lift"><div class="icon-badge yellow">{% include "partials/icon.html" with name="pay" %}</div><h3>Pay by mobile money</h3><p class="muted small">Pay the entry fee and annual subscription with M-Pesa, Mixx by Yas, Airtel Money or the bank.</p></div>
+      <div class="card lift"><div class="icon-badge navy">{% include "partials/icon.html" with name="card" %}</div><h3>Download your ID</h3><p class="muted small">Active members get a membership number and a printable ID card with a QR code.</p></div>
+      <div class="card lift"><div class="icon-badge">{% include "partials/icon.html" with name="calendar" %}</div><h3>Attend conferences</h3><p class="muted small">Register for the conference and AGM, pay, and download your admission badge.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Membership fees {{ fees.year }}</span>
+      <h2>Simple, transparent fees</h2>
+    </div>
+    <div class="grid-3">
+      <div class="card"><span class="muted small">Entry fee (kiingilio) · once</span><h2 style="margin:.3rem 0 0;color:var(--green-700)">TZS {{ fees.entry_fee|intcomma }}</h2></div>
+      <div class="card"><span class="muted small">Annual subscription (ada ya mwaka)</span><h2 style="margin:.3rem 0 0;color:var(--green-700)">TZS {{ fees.annual_fee|intcomma }}</h2></div>
+      <div class="card" style="background:var(--green-50);border-color:var(--green-100)"><span class="muted small">New member pays today</span><h2 style="margin:.3rem 0 .6rem;color:var(--green-700)">TZS {{ fees.entry_fee|add:fees.annual_fee|intcomma }}</h2><a href="{% url 'members:register' %}" class="btn btn-primary btn-sm">Join now</a></div>
+    </div>
+  </div>
+</section>
+
+{% if posts %}
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head"><span class="eyebrow">News &amp; updates</span><h2>Latest from TANPA</h2></div>
+    <div class="grid-3">
+      {% for p in posts %}
+      <article class="card post-card lift">
+        <a class="thumb" href="{{ p.get_absolute_url }}" style="background-image:url('{% if p.image %}{{ p.image.url }}{% else %}{% static 'img/gallery/tanpa-06.jpg' %}{% endif %}')"></a>
+        <div class="body">
+          <span class="date">{{ p.published_at|date:"j F Y" }}</span>
+          <h3><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></h3>
+          <p class="muted small">{{ p.summary|default:p.body|truncatewords:22 }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head" style="display:flex;justify-content:space-between;align-items:flex-end;max-width:none;gap:1rem;flex-wrap:wrap">
+      <div><span class="eyebrow">Gallery</span><h2 style="margin:0">Moments from our community</h2></div>
+      <a class="btn btn-outline btn-sm" href="{% url 'core:gallery' %}">View all photos</a>
+    </div>
+    <div class="mosaic">
+      {% if gallery %}
+        {% for g in gallery %}<a href="{% url 'core:gallery' %}"><img src="{{ g.image.url }}" alt="{{ g.caption }}" loading="lazy">{% if g.caption %}<figcaption>{{ g.caption }}</figcaption>{% endif %}</a>{% endfor %}
+      {% else %}
+        <a href="{% url 'core:gallery' %}"><img src="{% static 'img/gallery/tanpa-02.jpg' %}" alt="" loading="lazy"><figcaption>Opening of the 4th International Conference</figcaption></a>
+        <a href="{% url 'core:gallery' %}"><img src="{% static 'img/gallery/tanpa-04.jpg' %}" alt="" loading="lazy"></a>
+        <a href="{% url 'core:gallery' %}"><img src="{% static 'img/gallery/tanpa-06.jpg' %}" alt="" loading="lazy"></a>
+        <a href="{% url 'core:gallery' %}"><img src="{% static 'img/gallery/tanpa-08.jpg' %}" alt="" loading="lazy"></a>
+        <a href="{% url 'core:gallery' %}"><img src="{% static 'img/gallery/tanpa-03.jpg' %}" alt="" loading="lazy"></a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% if leaders %}
+<section class="section soft">
+  <div class="wrap">
+    <div class="section-head center"><span class="eyebrow">Leadership</span><h2>Meet our leaders</h2></div>
+    <div class="grid-4">
+      {% for l in leaders %}
+      <div class="leader">
+        {% if l.photo %}<img class="avatar" src="{{ l.photo.url }}" alt="{{ l.name }}" loading="lazy">{% else %}<div class="avatar placeholder">{{ l.name|slice:":1" }}</div>{% endif %}
+        <h3>{{ l.name }}</h3><p class="muted small">{{ l.position }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="wrap">
+    <div class="cta-band">
+      <div>
+        <h2>Is your membership active for {% now "Y" %}?</h2>
+        <p>Sign in to check your status, pay your annual subscription and download your ID card.</p>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;position:relative;z-index:1">
+        <a class="btn btn-yellow" href="{% url 'login' %}">Check my status</a>
+        <a class="btn btn-ghost-light" href="{% url 'members:verify_lookup' %}">Verify a member</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

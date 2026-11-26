@@ -1,0 +1,17 @@
+{% extends "registration/_auth.html" %}
+{% block title %}Member login · TANPA{% endblock %}
+{% block heading %}Member login{% endblock %}
+{% block sub %}<p class="muted small" style="margin:.3rem 0 0">Sign in to pay fees, download your ID and register for events.</p>{% endblock %}
+{% block form %}
+<form method="post" novalidate>{% csrf_token %}
+  {% if form.non_field_errors %}<div class="non-field">Incorrect email/membership number or password.</div>{% endif %}
+  <div style="display:grid;gap:14px">
+    {% include "partials/field.html" with field=form.username %}
+    {% include "partials/field.html" with field=form.password %}
+  </div>
+  <input type="hidden" name="next" value="{{ next }}">
+  <p class="small" style="text-align:right;margin:.6rem 0 1rem"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+  <button class="btn btn-primary btn-block">Sign in</button>
+</form>
+<p class="center small muted" style="margin:1.2rem 0 0">New to TANPA? <a href="{% url 'members:register' %}">Create an account</a></p>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% load static %}
+{% block title %}Gallery · {{ site.short_name }}{% endblock %}
+{% block content %}
+{% include "core/page_head.html" with title="Gallery" subtitle="Photos from our conferences, meetings and activities." %}
+<section class="section">
+  <div class="wrap">
+    {% if albums %}
+    <div class="chips">
+      <a class="chip {% if not album %}on{% endif %}" href="{% url 'core:gallery' %}">All</a>
+      {% for a in albums %}<a class="chip {% if a == album %}on{% endif %}" href="?album={{ a|urlencode }}">{{ a }}</a>{% endfor %}
+    </div>
+    {% endif %}
+    {% if images %}
+    <div class="gallery-grid">
+      {% for g in images %}<figure><a href="{{ g.image.url }}" target="_blank" rel="noopener"><img src="{{ g.image.url }}" alt="{{ g.caption }}" loading="lazy"></a>{% if g.caption %}<figcaption>{{ g.caption }}</figcaption>{% endif %}</figure>{% endfor %}
+    </div>
+    {% else %}<p class="empty">Photos will be added soon.</p>{% endif %}
+  </div>
+</section>
+{% endblock %}

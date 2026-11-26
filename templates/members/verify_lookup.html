@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Verify a member · TANPA{% endblock %}
+{% block content %}
+{% include "core/page_head.html" with title="Verify a member" subtitle="Check whether a TANPA membership number is valid and active. You can also scan the QR code on the back of the ID card." %}
+<section class="section">
+  <div class="wrap">
+    <form class="card" method="get" style="max-width:520px;margin:0 auto">
+      {% include "partials/field.html" with field=form.number %}
+      {% if not_found %}<p class="errors" style="color:var(--red);font-weight:600;margin:.6rem 0 0">No member found with that number.</p>{% endif %}
+      <button class="btn btn-primary btn-block" style="margin-top:16px">{% include "partials/icon.html" with name="search" size=17 %} Verify</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

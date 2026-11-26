@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% load humanize %}
+{% block title %}Approve on your phone · TANPA{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="wrap">
+    <div class="card center" style="max-width:520px;margin:0 auto;padding:40px 28px" data-status-url="{% url 'payments:status' payment.reference %}" data-receipt-url="{% url 'payments:receipt' payment.reference %}" data-checkout-url="{% url 'payments:checkout' payment.reference %}">
+      <div class="spinner" data-spinner></div>
+      <h2 style="font-size:1.4rem" data-title>Check your phone</h2>
+      <p data-text>A payment request for <b>TZS {{ payment.amount|intcomma }}</b> was sent to <b>{{ payment.phone }}</b>. Enter your PIN to approve it. This page updates automatically.</p>
+      <p class="small muted">Reference {{ payment.reference }}</p>
+      <a class="btn btn-outline btn-sm" href="{% url 'payments:checkout' payment.reference %}">Didn't get a prompt? Try again</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+(function(){
+  var box=document.querySelector('[data-status-url]'),tries=0;
+  function poll(){
+    fetch(box.dataset.statusUrl,{credentials:'same-origin'}).then(function(r){return r.json()}).then(function(d){
+      if(d.status==='paid'){window.location=box.dataset.receiptUrl;return}
+      if(d.status==='failed'||d.status==='cancelled'){
+        box.querySelector('[data-spinner]').style.display='none';
+        box.querySelector('[data-title]').textContent='Payment not completed';
+        box.querySelector('[data-text]').textContent='The payment was declined or timed out. You can try again.';
+        return;
+      }
+      if(++tries<72){setTimeout(poll,5000)}
+    }).catch(function(){setTimeout(poll,8000)});
+  }
+  setTimeout(poll,4000);
+})();
+</script>
+{% endblock %}
