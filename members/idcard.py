@@ -305,7 +305,7 @@ def draw_back(c, member):
     rect(c, 0, 0, 856, 540, GREEN_X)
     c.saveState()
     c.setStrokeColor(MINT)
-    c.setStrokeAlpha(0.07)
+    c.setStrokeAlpha(0.04)
     c.setLineWidth(1 * U)
     for x in range(0, 857, 28):
         c.line(X(x), 0, X(x), H)

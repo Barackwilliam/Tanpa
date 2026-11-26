@@ -15,8 +15,8 @@ html.dark{--tp-card:#111a15;--tp-line:#1f2b24;--tp-ink:#eef5f0;--tp-mute:#8d9a92
              radial-gradient(600px 300px at 0% 120%,rgba(31,191,208,.35),transparent 60%),
              linear-gradient(120deg,#04361a 0%,#087032 45%,#0a8f3c 100%);
   box-shadow:0 20px 40px -24px rgba(6,61,29,.6)}
-.tp-hero::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:18px 18px;mask-image:linear-gradient(90deg,transparent,#000)}
-.tp-hero .logo{position:absolute;right:-30px;top:50%;transform:translateY(-50%) rotate(-8deg);width:230px;opacity:.16;filter:saturate(0) brightness(3)}
+.tp-hero::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.035) 1px,transparent 1px);background-size:18px 18px;mask-image:linear-gradient(90deg,transparent,#000)}
+.tp-hero .logo{position:absolute;right:-30px;top:50%;transform:translateY(-50%) rotate(-8deg);width:230px;opacity:.06;filter:brightness(0) invert(1)}
 .tp-hero .ecg{position:absolute;left:0;right:0;bottom:12px;height:46px;opacity:.35}
 .tp-hero .ecg path{stroke:var(--tp-y);stroke-width:2;fill:none;stroke-dasharray:1200;stroke-dashoffset:1200;animation:tp-ecg 4s linear infinite}
 @keyframes tp-ecg{to{stroke-dashoffset:0}}
