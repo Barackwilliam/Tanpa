@@ -1,28 +1,17 @@
 {% extends "base.html" %}{% load humanize %}
 {% block title %}Conferences & meetings · TANPA{% endblock %}
 {% block content %}
-{% include "core/page_head.html" with title="Conferences & meetings" subtitle="Register online for the annual scientific conference, AGM and trainings, then download your admission badge." crumb="Conferences" %}
+{% include "core/page_head.html" with title="Conferences & meetings" subtitle="Register online for the scientific conference, AGM and trainings, then walk in with your QR badge." crumb="Conferences" %}
 <section class="section">
   <div class="wrap">
-    <h2 style="font-size:1.4rem">Upcoming</h2>
-    <div style="display:grid;gap:16px;margin-bottom:56px">
-      {% for e in upcoming %}
-      <div class="card event-row lift">
-        <div class="datebox"><b>{{ e.start_date|date:"j" }}</b><span>{{ e.start_date|date:"M Y" }}</span></div>
-        <div>
-          <span class="eyebrow" style="margin:0">{{ e.get_kind_display }}</span>
-          <h3 style="margin:.1rem 0 .3rem"><a href="{{ e.get_absolute_url }}" style="color:var(--ink)">{{ e.title }}</a></h3>
-          <p class="small muted" style="margin:0">{{ e.start_date|date:"j M" }} – {{ e.end_date|date:"j M Y" }} · {{ e.venue }}, {{ e.city }}{% if e.member_fee %} · Members TZS {{ e.member_fee|intcomma }}{% endif %}</p>
-        </div>
-        <a class="btn btn-primary btn-sm" href="{{ e.get_absolute_url }}">{% if e.can_register %}Register{% else %}Details{% endif %}</a>
-      </div>
-      {% empty %}<p class="muted">No upcoming events right now. Check back soon.</p>{% endfor %}
+    <div class="head" data-reveal><span class="kicker">Upcoming</span><h2>Save the date</h2></div>
+    <div class="ev-list">
+      {% for e in upcoming %}{% include "events/_row.html" %}
+      {% empty %}<div class="coming" data-reveal>{% include "partials/icon.html" with name="calendar" %}<b style="color:var(--ink)">No upcoming events announced yet</b><p class="muted" style="margin:.4rem 0 0">New conferences and meetings will appear here.</p></div>{% endfor %}
     </div>
     {% if past %}
-    <h2 style="font-size:1.4rem">Past events</h2>
-    <div class="table-wrap"><table class="table">
-      {% for e in past %}<tr><td style="width:140px">{{ e.start_date|date:"M Y" }}</td><td><a href="{{ e.get_absolute_url }}">{{ e.title }}</a></td><td class="muted">{{ e.city }}</td></tr>{% endfor %}
-    </table></div>
+    <div class="head" style="margin-top:90px" data-reveal><span class="kicker">Archive</span><h2>Past events</h2></div>
+    <div class="ev-list">{% for e in past %}{% include "events/_row.html" %}{% endfor %}</div>
     {% endif %}
   </div>
 </section>

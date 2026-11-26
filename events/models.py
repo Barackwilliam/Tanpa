@@ -26,10 +26,13 @@ class Event(models.Model):
     end_date = models.DateField()
     banner = models.ImageField(upload_to="events/", blank=True)
 
-    member_fee = models.PositiveIntegerField("Fee for active members (TZS)", default=0)
-    non_member_fee = models.PositiveIntegerField("Fee for non-members (TZS)", default=0)
+    member_fee = models.PositiveIntegerField(
+        "Fee for active members (TZS)", null=True, blank=True, help_text="Leave empty until the fee is decided. 0 = free."
+    )
+    non_member_fee = models.PositiveIntegerField("Fee for non-members (TZS)", null=True, blank=True)
+    programme = models.TextField(blank=True, help_text="One item per line, e.g. '08:00 – Registration'")
     members_only = models.BooleanField(default=False, help_text="Only active members may register")
-    registration_open = models.BooleanField(default=True)
+    registration_open = models.BooleanField(default=False)
     registration_deadline = models.DateField(null=True, blank=True)
     capacity = models.PositiveIntegerField(null=True, blank=True, help_text="Leave empty for unlimited")
     cpd_points = models.PositiveIntegerField("CPD points", null=True, blank=True)
@@ -73,13 +76,23 @@ class Event(models.Model):
             return False
         if self.registration_deadline and today > self.registration_deadline:
             return False
+        if self.member_fee is None or (not self.members_only and self.non_member_fee is None):
+            return False
         return not self.is_full
+
+    @property
+    def fees_announced(self):
+        return self.member_fee is not None
+
+    @property
+    def programme_list(self):
+        return [line.strip() for line in self.programme.splitlines() if line.strip()]
 
     def fee_for(self, user):
         member = getattr(user, "member", None)
         if member is not None and member.is_active_member:
-            return self.member_fee
-        return self.non_member_fee
+            return self.member_fee or 0
+        return self.non_member_fee or 0
 
 
 class EventRegistration(models.Model):

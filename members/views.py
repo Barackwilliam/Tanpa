@@ -100,6 +100,9 @@ def start_payment(request, purpose):
     member = request.user.member
     year = timezone.localdate().year
     fees = FeeSchedule.for_year(year)
+    if fees is None:
+        messages.info(request, "Membership fees have not been published yet. Please check back soon.")
+        return redirect("members:dashboard")
 
     if purpose == "joining":
         if member.entry_fee_paid:
@@ -126,7 +129,7 @@ def start_payment(request, purpose):
         if member.has_paid_year(year):
             messages.info(request, f"Your {year} subscription is already paid.")
             return redirect("members:dashboard")
-        amount = FeeSchedule.for_year(year).annual_fee
+        amount = (FeeSchedule.for_year(year) or fees).annual_fee
     else:
         return redirect("members:dashboard")
 

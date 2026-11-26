@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Verify a member · TANPA{% endblock %}
 {% block content %}
-{% include "core/page_head.html" with title="Verify a member" subtitle="Check whether a TANPA membership number is valid and active. You can also scan the QR code on the back of the ID card." %}
-<section class="section">
-  <div class="wrap">
-    <form class="card" method="get" style="max-width:520px;margin:0 auto">
-      {% include "partials/field.html" with field=form.number %}
-      {% if not_found %}<p class="errors" style="color:var(--red);font-weight:600;margin:.6rem 0 0">No member found with that number.</p>{% endif %}
-      <button class="btn btn-primary btn-block" style="margin-top:16px">{% include "partials/icon.html" with name="search" size=17 %} Verify</button>
+{% include "core/page_head.html" with title="Verify a member" subtitle="Confirm a TANPA membership number and its current status. You can also scan the QR code on the back of the ID card." %}
+<section class="section" style="padding-top:70px">
+  <div class="wrap" style="max-width:720px">
+    <form class="verify-band" method="get" style="grid-template-columns:1fr">
+      <div><span class="kicker light">Official register</span><h2 style="font-size:2rem">Enter the membership number</h2></div>
+      <div class="vform"><label class="sr-only" for="id_number">Membership number</label>{{ form.number }}<button class="btn btn-yellow">{% include "partials/icon.html" with name="search" size=18 %} Verify</button></div>
+      {% if not_found %}<p style="color:#fca5a5;font-weight:700;margin:0">No member found with that number. Check it and try again.</p>{% endif %}
     </form>
   </div>
 </section>

@@ -5,13 +5,15 @@ from django.conf import settings
 from django.db import models, transaction
 from django.utils import timezone
 
+from core.storage import private_storage
+
 
 class FeeSchedule(models.Model):
     """Membership fees for a given year (set by the treasurer in the admin)."""
 
     year = models.PositiveIntegerField(unique=True)
-    entry_fee = models.PositiveIntegerField("Entry fee (kiingilio), TZS", default=20000)
-    annual_fee = models.PositiveIntegerField("Annual subscription (ada ya mwaka), TZS", default=50000)
+    entry_fee = models.PositiveIntegerField("Entry fee (kiingilio), TZS")
+    annual_fee = models.PositiveIntegerField("Annual subscription (ada ya mwaka), TZS")
 
     class Meta:
         ordering = ["-year"]
@@ -19,15 +21,16 @@ class FeeSchedule(models.Model):
     def __str__(self):
         return f"Fees {self.year}"
 
+    @property
+    def joining_total(self):
+        return self.entry_fee + self.annual_fee
+
     @classmethod
     def for_year(cls, year=None):
+        """Fees for a year (falls back to the latest earlier year). None until set in the admin."""
         year = year or timezone.localdate().year
         fee = cls.objects.filter(year__lte=year).order_by("-year").first()
-        if fee is None:
-            fee = cls.objects.order_by("year").first()
-        if fee is None:
-            fee = cls.objects.create(year=year)
-        return fee
+        return fee or cls.objects.order_by("year").first()
 
 
 def make_reference():
@@ -74,7 +77,9 @@ class Payment(models.Model):
     external_reference = models.CharField(
         "Transaction / receipt number", max_length=100, blank=True, db_index=True
     )
-    proof = models.FileField("Payment slip / screenshot", upload_to="payments/proofs/", blank=True)
+    proof = models.FileField(
+        "Payment slip / screenshot", upload_to="payments/proofs/", blank=True, storage=private_storage
+    )
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING, db_index=True)
     gateway_response = models.JSONField(default=dict, blank=True)
     notes = models.TextField(blank=True)

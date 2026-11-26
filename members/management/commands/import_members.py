@@ -22,11 +22,11 @@ from payments.models import Payment
 
 
 def _cadre(value):
-    v = (value or "").strip().lower()
-    for code, label in Cadre.choices:
-        if v in (code, label.lower()) or (v and v in label.lower()):
-            return code
-    return Cadre.OTHER
+    name = (value or "").strip()
+    if not name:
+        return None
+    existing = Cadre.objects.filter(name__iexact=name).first()
+    return existing or Cadre.objects.create(name=name)
 
 
 def _region(value):

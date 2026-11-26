@@ -7,68 +7,52 @@ from django.utils.text import slugify
 class SiteSettings(models.Model):
     """Single row holding all editable organisation text and contact details.
 
-    Everything the public sees (about text, contacts, payment instructions)
-    lives here so TANPA staff can change it from the admin without a developer.
+    Everything is entered by TANPA staff in the admin. Empty fields are simply
+    hidden on the website.
     """
 
     name = models.CharField(max_length=200, default="Tanzania Association of Non Physician Anaesthetists")
     short_name = models.CharField(max_length=20, default="TANPA")
-    tagline = models.CharField(
-        max_length=255,
-        default="Strengthening anaesthesia practice for safer surgical care in Tanzania and beyond.",
-    )
-    hero_intro = models.TextField(
-        default=(
-            "TANPA brings together non-physician anaesthesia providers across Tanzania to "
-            "advance safe anaesthesia, continuous professional development and the welfare "
-            "of our members."
-        )
-    )
-    about = models.TextField(
-        "About / history",
-        default=(
-            "The Tanzania Association of Non Physician Anaesthetists (TANPA) is the professional "
-            "body for non-physician anaesthesia providers in Tanzania. Our members deliver the "
-            "majority of anaesthesia services in hospitals across the country, from regional "
-            "referral hospitals to district facilities.\n\n"
-            "TANPA organises scientific conferences, trainings and an Annual General Meeting, "
-            "and works with the Ministry of Health, training institutions and partners to raise "
-            "the standard of anaesthesia care."
-        ),
-    )
-    mission = models.TextField(
-        default="To promote safe, quality and accessible anaesthesia services through professional "
-        "development, advocacy and collaboration."
-    )
-    vision = models.TextField(
-        default="Safe anaesthesia and surgical care for every patient in Tanzania."
-    )
-    objectives = models.TextField(
-        help_text="One objective per line.",
-        default=(
-            "Unite non-physician anaesthesia providers under one professional body\n"
-            "Promote continuous professional development and research\n"
-            "Advocate for the welfare and recognition of members\n"
-            "Collaborate with government and partners to improve patient safety\n"
-            "Uphold ethics and professional standards in anaesthesia practice"
-        ),
-    )
-    founded_year = models.PositiveIntegerField(null=True, blank=True)
+    tagline = models.CharField(max_length=255, blank=True, help_text="Short slogan shown in the footer and search results.")
 
-    phone = models.CharField(max_length=50, default="+255 758 420 006")
-    email = models.EmailField(default="info@tanpa.co.tz")
-    address = models.CharField(max_length=255, default="Dodoma, Tanzania")
+    hero_title = models.CharField(
+        "Home page headline", max_length=160, blank=True,
+        help_text="Leave empty to use the default headline.",
+    )
+    hero_subtitle = models.TextField("Home page introduction", blank=True)
+    hero_image = models.ImageField("Home page background photo", upload_to="site/", blank=True)
+
+    about = models.TextField("About / history", blank=True)
+    about_image = models.ImageField(upload_to="site/", blank=True)
+    mission = models.TextField(blank=True)
+    vision = models.TextField(blank=True)
+    objectives = models.TextField(blank=True, help_text="One objective per line.")
+    core_values = models.TextField(blank=True, help_text="One value per line.")
+    benefits = models.TextField("Membership benefits", blank=True, help_text="One benefit per line.")
+    founded_year = models.PositiveIntegerField(null=True, blank=True)
+    registration_number = models.CharField("Registration number", max_length=80, blank=True)
+    constitution = models.FileField("Constitution (PDF)", upload_to="site/", blank=True)
+
+    phone = models.CharField(max_length=50, blank=True)
+    email = models.EmailField(blank=True)
+    address = models.CharField("Office address", max_length=255, blank=True)
     po_box = models.CharField("P.O. Box", max_length=100, blank=True)
+    office_hours = models.CharField(max_length=120, blank=True, help_text="e.g. Mon–Fri, 8:00–16:00")
+    map_embed_url = models.URLField(
+        "Google Maps embed link", blank=True, max_length=600,
+        help_text="Google Maps → Share → Embed a map → copy only the src link.",
+    )
     facebook = models.URLField(blank=True)
     instagram = models.URLField(blank=True)
     x_twitter = models.URLField("X / Twitter", blank=True)
     youtube = models.URLField(blank=True)
-    whatsapp = models.CharField(max_length=30, blank=True, help_text="Number in international format, e.g. 255758420006")
+    linkedin = models.URLField(blank=True)
+    whatsapp = models.CharField(max_length=30, blank=True, help_text="Number in international format, e.g. 2557XXXXXXXX")
 
     # Manual payment instructions, shown when a member chooses bank / mobile transfer.
-    bank_name = models.CharField(max_length=120, blank=True, default="")
-    bank_account_name = models.CharField(max_length=160, blank=True, default="")
-    bank_account_number = models.CharField(max_length=60, blank=True, default="")
+    bank_name = models.CharField(max_length=120, blank=True)
+    bank_account_name = models.CharField(max_length=160, blank=True)
+    bank_account_number = models.CharField(max_length=60, blank=True)
     mobile_lipa_number = models.CharField("Mobile money Lipa number", max_length=60, blank=True)
     mobile_lipa_name = models.CharField("Lipa number name", max_length=120, blank=True)
     payment_note = models.TextField(
@@ -93,9 +77,25 @@ class SiteSettings(models.Model):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
 
+    @staticmethod
+    def _lines(text):
+        return [line.strip(" -•\t") for line in (text or "").splitlines() if line.strip(" -•\t")]
+
     @property
     def objectives_list(self):
-        return [line.strip() for line in self.objectives.splitlines() if line.strip()]
+        return self._lines(self.objectives)
+
+    @property
+    def values_list(self):
+        return self._lines(self.core_values)
+
+    @property
+    def benefits_list(self):
+        return self._lines(self.benefits)
+
+    @property
+    def has_social(self):
+        return any([self.facebook, self.instagram, self.x_twitter, self.youtube, self.linkedin, self.whatsapp])
 
     @property
     def has_manual_payment_details(self):

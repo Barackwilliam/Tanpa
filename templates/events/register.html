@@ -2,17 +2,20 @@
 {% block title %}Register · {{ event.title }}{% endblock %}
 {% block content %}
 {% include "core/page_head.html" with title="Event registration" subtitle=event.title crumb="Conferences" %}
-<section class="section">
+<section class="section" style="padding-top:70px;background:var(--mist)">
   <div class="wrap checkout">
-    <form class="card" method="post" novalidate>{% csrf_token %}
-      <h3>Your details</h3>
+    <form class="card" method="post" novalidate style="padding:40px">{% csrf_token %}
+      <span class="kicker">Your badge</span><h2 style="font-size:2rem">Your details</h2>
       {% include "partials/form.html" %}
-      <button class="btn btn-primary" style="margin-top:18px">{% if fee %}Continue to payment{% else %}Confirm registration{% endif %}</button>
+      <button class="btn btn-primary btn-lg" style="margin-top:22px">{% if fee %}Continue to payment{% else %}Confirm registration{% endif %} {% include "partials/icon.html" with name="arrow" size=18 %}</button>
     </form>
-    <aside class="card summary">
-      <span class="muted small">Your fee</span>
-      <div class="amount">{% if fee %}TZS {{ fee|intcomma }}{% else %}Free{% endif %}</div>
-      <p class="small">{% if member.is_active_member %}Member rate applied — you are an active member.{% else %}Non-member rate. <a href="{% url 'members:dashboard' %}">Activate your membership</a> first to get the member rate (TZS {{ event.member_fee|intcomma }}).{% endif %}</p>
+    <aside class="summary">
+      <div class="top">
+        <span class="kicker light" style="margin:0">Your fee</span>
+        <div class="amount">{% if fee %}<small>TZS</small>{{ fee|intcomma }}{% else %}Free{% endif %}</div>
+        <p style="margin:1rem 0 0">{% if member.is_active_member %}Member rate applied. You're an active member.{% else %}Non-member rate. <a style="color:var(--y)" href="{% url 'members:dashboard' %}">Activate your membership</a> first to get the member rate{% if event.member_fee is not None %} (TZS {{ event.member_fee|intcomma }}){% endif %}.{% endif %}</p>
+      </div>
+      <div class="perf"></div>
     </aside>
   </div>
 </section>

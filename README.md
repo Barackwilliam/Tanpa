@@ -1,7 +1,32 @@
 # TANPA website & member portal
 
 Website for the **Tanzania Association of Non Physician Anaesthetists (TANPA)**: public pages
-plus an online membership system.
+plus an online membership system. Crafted by **JamiiTek**.
+
+**Stack:** Django 5.2 LTS · Supabase Postgres · Supabase Storage (all uploads) · Unfold admin theme.
+
+## Content policy: nothing is invented
+
+The only content shipped with the site is what TANPA has provided: the name, logo, conference
+photos, and the 4th International Conference (22–24 April 2026, Morena Hotel, Dodoma). Everything
+else stays **empty until staff enter it in the admin**: about text, mission, vision, objectives,
+values, benefits, contacts, leaders, fees, cadres, news and event fees. Empty sections are hidden
+or show a tasteful "coming soon". The admin dashboard has a **launch checklist** that tracks what
+is still missing.
+
+## Supabase setup
+
+1. **Database:** Supabase → Project Settings → Database → Connection string (URI, *Session
+   pooler*). Put it in `DATABASE_URL`, then run `python manage.py migrate`.
+2. **Storage:** create two buckets in Supabase → Storage:
+   - `tanpa-media`: **Public** (gallery, news, leaders, event banners, member photos)
+   - `tanpa-private`: **Private** (payment slips, served via short-lived signed links)
+3. Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (Project Settings → API). The key stays
+   on the server; it is never sent to browsers.
+4. Without `SUPABASE_URL`, uploads are stored on local disk (handy for development).
+
+`python manage.py seed_demo` uploads the conference photos into the gallery bucket and creates
+the 4th conference.
 
 ## What it does
 
@@ -22,13 +47,15 @@ conferences, news, gallery and contact form. All text is editable from the admin
 - Sign in with an email or membership number, reset forgotten passwords, see payment history
   and receipts.
 
-**Staff** (`/manage/` for users with *staff status*)
+**Admin** (`/admin/`, Unfold theme in TANPA colours, light/dark mode)
+- Dashboard: launch checklist, KPIs, monthly collections chart, status donut, payments waiting,
+  newest members, regions, upcoming events.
 - Overview: active, non-active and pending counts, money collected per year, members by region.
 - **Members database** with search and filters (status per year, region, cadre) and CSV/Excel export.
 - Confirm or reject bank/Lipa-number payments (with the uploaded slip), record cash payments,
   suspend or reinstate members.
 - Event registrations with attendee export and check-in.
-- Full Django admin at `/admin/` for fees, events, news, gallery, leaders and messages.
+- All content (settings, leaders, news, gallery, partners, cadres, fees, events) is edited here.
 
 ## Payments
 
@@ -50,7 +77,8 @@ Set fees per year in **Admin → Fee schedules**.
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py seed_demo            # starter content; add --members for fake test members
+python manage.py seed_demo            # real starter content (photos + 4th conference)
+# python manage.py seed_demo --members   # TESTING ONLY: fake members + demo fees
 python manage.py createsuperuser
 python manage.py runserver
 ```
@@ -71,15 +99,14 @@ workplace, region, district, joined_on, paid_years` (e.g. `2024;2025`). Imported
 ## Deploy (e.g. cPanel "Setup Python App" or a VPS)
 
 1. Set the environment variables from `.env.example`, at minimum `DJANGO_SECRET_KEY`,
-   `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS` and `SITE_URL`.
+   `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS`, `SITE_URL`, `DATABASE_URL` and the `SUPABASE_*` values.
 2. `pip install -r requirements.txt`
 3. `python manage.py migrate && python manage.py collectstatic --noinput`
 4. Start with `gunicorn tanpa.wsgi` (or point the cPanel app at `tanpa/wsgi.py`).
-5. Uploaded files live in `media/`. Serve them with the web server, or set `DJANGO_SERVE_MEDIA=true`.
-6. Back up `db.sqlite3` (or the Postgres database) and the `media/` folder regularly.
+5. Uploads go to Supabase Storage. Backups: enable Supabase's database backups.
 
 ## Before launch: still needed from TANPA
 
-Logo and colours ✔ · About text, history and objectives · Leaders' names, positions and photos ·
-existing member list · confirmed fees · conference fees · bank account / Lipa number and
-AzamPay merchant account · domain (`tanpa.co.tz`) · office email names.
+Logo, colours, conference photos ✔ · About text, mission, vision, objectives · cadres list ·
+leaders' names, positions and photos · contacts · existing member list · fees · conference fees ·
+bank account / Lipa number and AzamPay merchant account · Supabase project · domain (`tanpa.co.tz`).

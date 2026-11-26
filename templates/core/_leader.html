@@ -1,0 +1,4 @@
+<div class="leader" data-reveal style="--d:{{ forloop.counter0 }}0ms">
+  {% if l.photo %}<img src="{{ l.photo.url }}" alt="{{ l.name }}" loading="lazy">{% else %}<div class="ph">{{ l.name|slice:":1" }}</div>{% endif %}
+  <div class="info"><b>{{ l.name }}</b><span>{{ l.position }}</span>{% if l.bio %}<div class="bio">{{ l.bio|truncatewords:30 }}</div>{% endif %}</div>
+</div>

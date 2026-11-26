@@ -13,7 +13,7 @@ from django.utils import timezone
 from PIL import Image
 
 from events.models import Event, EventRegistration
-from members.models import Member
+from members.models import Cadre, Member
 from payments.models import FeeSchedule, Payment
 
 User = get_user_model()
@@ -30,7 +30,7 @@ def make_member(email="a@example.com", **kw):
     u = User.objects.create_user(email, email, "S3cure-pass-99")
     return Member.objects.create(
         user=u, first_name=kw.get("first", "Asha"), last_name="Mushi", gender="F", phone="0758420006",
-        cadre="amo", workplace="Dodoma RRH", region="Dodoma", photo=kw.get("photo", ""),
+        cadre=Cadre.objects.get_or_create(name="Assistant Medical Officer (Anaesthesia)")[0], workplace="Dodoma RRH", region="Dodoma", photo=kw.get("photo", ""),
     )
 
 
@@ -54,7 +54,7 @@ class MembershipFlowTests(TestCase):
         resp = self.client.post(reverse("members:register"), {
             "email": "Neema@Example.com", "password1": "Very-strong-99", "password2": "Very-strong-99",
             "title": "Ms", "first_name": "Neema", "last_name": "Kimaro", "gender": "F", "phone": "0712345678",
-            "cadre": "nurse", "workplace": "Mbeya ZRH", "region": "Mbeya", "photo": photo(), "agree": "on",
+            "cadre": Cadre.objects.create(name="Nurse Anaesthetist").pk, "workplace": "Mbeya ZRH", "region": "Mbeya", "photo": photo(), "agree": "on",
         })
         self.assertRedirects(resp, reverse("members:dashboard"))
         member = Member.objects.get(user__username="neema@example.com")
@@ -133,7 +133,7 @@ class MembershipFlowTests(TestCase):
 
         staff = User.objects.create_user("staff", "staff@tanpa.co.tz", "x", is_staff=True)
         self.client.force_login(staff)
-        self.assertEqual(self.client.get(reverse("dashboard:home")).status_code, 200)
+        self.assertEqual(self.client.get("/admin/").status_code, 200)
         self.client.post(reverse("dashboard:payment_action", args=[p.reference]),
                          {"action": "confirm", "next": "https://evil.example/"})
         p.refresh_from_db()
@@ -182,7 +182,7 @@ class EventAndCallbackTests(TestCase):
         today = timezone.localdate()
         self.event = Event.objects.create(
             title="5th Conference", venue="Morena", city="Dodoma", start_date=today + timedelta(days=30),
-            end_date=today + timedelta(days=32), member_fee=150000, non_member_fee=250000,
+            end_date=today + timedelta(days=32), member_fee=150000, non_member_fee=250000, registration_open=True,
         )
 
     def test_member_rate_and_badge(self):
@@ -249,9 +249,42 @@ class ImportCommandTests(TestCase):
             f.write("TANPA/2024/0153,Juma,Ally,M,0711000000,juma@example.com,Nurse Anaesthetist,KCMC,Kilimanjaro,2024;2025\n")
         call_command("import_members", path, stdout=io.StringIO())
         m = Member.objects.get()
-        self.assertEqual(m.cadre, "nurse")
+        self.assertEqual(m.cadre.name, "Nurse Anaesthetist")
         self.assertEqual(m.paid_years(), [2025, 2024])
         self.assertFalse(m.user.has_usable_password())
         # numbering continues after the imported number
         from members.models import Sequence
         self.assertEqual(Sequence.next("member-2024"), 154)
+
+
+class EmptyDataTests(TestCase):
+    """Nothing invented: pages must render with an empty database."""
+
+    def test_pages_render_without_any_content(self):
+        for name in ["core:home", "core:about", "core:membership", "core:post_list", "core:gallery",
+                     "core:contact", "events:list", "members:register", "login"]:
+            self.assertEqual(self.client.get(reverse(name)).status_code, 200, name)
+        self.assertContains(self.client.get(reverse("core:membership")), "Fees will be announced")
+
+    def test_cannot_pay_before_fees_are_set(self):
+        m = make_member()
+        self.client.force_login(m.user)
+        self.assertEqual(self.client.get(reverse("members:dashboard")).status_code, 200)
+        self.client.post(reverse("members:pay", args=["joining"]))
+        self.assertFalse(Payment.objects.exists())
+
+    def test_event_without_fees_is_not_open(self):
+        today = timezone.localdate()
+        e = Event.objects.create(title="AGM", venue="X", city="Dodoma", start_date=today + timedelta(days=9),
+                                 end_date=today + timedelta(days=9), registration_open=True)
+        self.assertFalse(e.can_register)
+        self.assertContains(self.client.get(e.get_absolute_url()), "To be announced")
+
+    def test_admin_pages(self):
+        admin = User.objects.create_superuser("boss", "boss@tanpa.co.tz", "x")
+        self.client.force_login(admin)
+        for url in ["/admin/", "/admin/members/member/", "/admin/payments/payment/", "/admin/core/sitesettings/",
+                    "/admin/events/event/add/", "/admin/core/galleryimage/", reverse("dashboard:members"),
+                    reverse("dashboard:payments"), reverse("dashboard:events")]:
+            resp = self.client.get(url, follow=True)
+            self.assertEqual(resp.status_code, 200, url)

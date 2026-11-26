@@ -1,7 +1,9 @@
-<section class="page-head">
+<section class="phero grain">
+  <div class="hero-grid-bg"></div>
+  <svg class="ecg-line" viewBox="0 0 1600 120" preserveAspectRatio="none" aria-hidden="true">{% include "partials/ecg_wide.html" %}</svg>
   <div class="wrap">
-    <div class="crumbs"><a href="{% url 'core:home' %}">Home</a> / {{ crumb|default:title }}</div>
+    <div class="crumbs"><a href="{% url 'core:home' %}">Home</a><span>/</span><span>{{ crumb|default:title }}</span></div>
     <h1>{{ title }}</h1>
-    {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+    {% if subtitle %}<p class="sub">{{ subtitle }}</p>{% endif %}
   </div>
 </section>

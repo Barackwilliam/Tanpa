@@ -83,7 +83,7 @@ def render_id_card(member, year=None):
     y -= 5.2 * mm
     field("Membership No.", member.membership_number or "—", y)
     y -= 6.6 * mm
-    field("Cadre", member.get_cadre_display(), y)
+    field("Cadre", member.cadre_name or "—", y)
     y -= 6.6 * mm
     field("Region", member.get_region_display(), y)
 

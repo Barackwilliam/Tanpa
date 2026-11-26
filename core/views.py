@@ -15,6 +15,7 @@ def home(request):
     today = timezone.localdate()
     return render(request, "core/home.html", {
         "next_event": Event.objects.filter(is_published=True, end_date__gte=today).order_by("start_date").first(),
+        "last_event": Event.objects.filter(is_published=True, end_date__lt=today).order_by("-start_date").first(),
         "posts": Post.objects.filter(is_published=True, published_at__lte=timezone.now())[:3],
         "gallery": GalleryImage.objects.filter(is_featured=True)[:5] or GalleryImage.objects.all()[:5],
         "leaders": Leader.objects.filter(is_active=True)[:4],

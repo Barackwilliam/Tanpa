@@ -41,6 +41,14 @@ class MemberProfileFields(forms.ModelForm):
         ]
         widgets = {"date_of_birth": forms.DateInput(attrs={"type": "date"})}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from .models import Cadre
+
+        self.fields["cadre"].queryset = Cadre.objects.filter(is_active=True)
+        self.fields["cadre"].empty_label = "Select your cadre"
+        self.fields["cadre"].required = Cadre.objects.filter(is_active=True).exists()
+
     def clean_photo(self):
         return validate_photo(self.cleaned_data.get("photo"))
 

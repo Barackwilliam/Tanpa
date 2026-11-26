@@ -1,3 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Page not found · TANPA{% endblock %}
-{% block content %}<section class="section center"><div class="wrap"><h1>Page not found</h1><p class="muted">The page you are looking for does not exist or has moved.</p><a class="btn btn-primary" href="/">Go to the home page</a></div></section>{% endblock %}
+{% block content %}
+<section class="verify-hero grain warn"><div class="hero-grid-bg"></div>
+  <div class="center" style="color:#b9cfc1">
+    <div class="ecg-box" style="width:min(520px,90vw);margin:0 auto 30px;height:110px">{% include "partials/ecg_monitor.html" %}</div>
+    <p class="mono" style="color:var(--y);letter-spacing:.2em">ERROR 404 · NO PULSE</p>
+    <h1 style="color:#fff;font-size:clamp(2.4rem,6vw,4.4rem)">This page flat-lined.</h1>
+    <p>The page you're looking for doesn't exist or has moved.</p>
+    <a class="btn btn-yellow btn-lg" href="/">Back to the home page</a>
+  </div>
+</section>
+{% endblock %}

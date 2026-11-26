@@ -1,58 +1,54 @@
-{% extends "dashboard/base.html" %}{% load humanize %}
-{% block dtitle %}{{ m.full_name }}{% endblock %}
+{% extends "dashboard/_layout.html" %}{% load humanize %}
 {% block dash %}
-<div class="dash-head">
-  <h1>{{ m.display_name }}</h1>
-  <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-    <a class="btn btn-outline btn-sm" href="{% url 'members:verify' m.verification_token %}" target="_blank">Public verify page</a>
-    <a class="btn btn-outline btn-sm" href="{% url 'admin:members_member_change' m.pk %}">Edit in admin</a>
-    <form class="inline-form" method="post" action="{% url 'dashboard:member_suspend' m.pk %}">{% csrf_token %}<button class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">{% if m.is_suspended %}Reinstate{% else %}Suspend{% endif %}</button></form>
+<div class="tp-head">
+  <div><h1>{{ m.display_name }}</h1><p><span class="tp-pill {{ m.status }}">{{ m.status_label }}</span> &nbsp;<span class="tp-mono">{{ m.membership_number|default:"No membership number yet" }}</span></p></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <a class="tp-btn o" href="{% url 'members:verify' m.verification_token %}" target="_blank"><span class="ms">qr_code</span> Verify page</a>
+    <a class="tp-btn o" href="{% url 'admin:members_member_change' m.pk %}"><span class="ms">edit</span> Edit</a>
+    <form class="tp-inline" method="post" action="{% url 'dashboard:member_suspend' m.pk %}">{% csrf_token %}<button class="tp-btn r" onclick="return confirm('Are you sure?')"><span class="ms">{% if m.is_suspended %}lock_open{% else %}block{% endif %}</span> {% if m.is_suspended %}Reinstate{% else %}Suspend{% endif %}</button></form>
   </div>
 </div>
-<div class="dash-grid">
-  <div style="display:grid;gap:18px;align-content:start">
-    <div class="card" style="display:flex;gap:20px;flex-wrap:wrap">
-      {% if m.photo %}<img src="{{ m.photo.url }}" alt="" style="width:120px;height:150px;object-fit:cover;border-radius:12px">{% endif %}
-      <div style="flex:1;min-width:240px">
-        <p style="margin:0 0 .6rem"><span class="badge {{ m.status }}">{{ m.status_label }}</span> <span class="mono" style="font-family:ui-monospace,monospace;font-weight:700;color:var(--green-700);margin-left:.5rem">{{ m.membership_number|default:"No number yet" }}</span></p>
-        <table class="table small">
-          <tr><td class="muted">Email</td><td>{{ m.user.email }}</td></tr>
-          <tr><td class="muted">Phone</td><td>{{ m.phone }}</td></tr>
-          <tr><td class="muted">Gender / DOB</td><td>{{ m.get_gender_display }}{% if m.date_of_birth %} · {{ m.date_of_birth|date:"j M Y" }}{% endif %}</td></tr>
-          <tr><td class="muted">NIDA</td><td>{{ m.national_id|default:"—" }}</td></tr>
-          <tr><td class="muted">Cadre</td><td>{{ m.get_cadre_display }}</td></tr>
-          <tr><td class="muted">Prof. reg. no.</td><td>{{ m.professional_reg_no|default:"—" }}</td></tr>
-          <tr><td class="muted">Workplace</td><td>{{ m.workplace }}</td></tr>
-          <tr><td class="muted">Region / district</td><td>{{ m.region }}{% if m.district %} · {{ m.district }}{% endif %}</td></tr>
-          <tr><td class="muted">Joined</td><td>{{ m.joined_on|date:"j M Y"|default:"—" }}</td></tr>
-          <tr><td class="muted">Years paid</td><td>{% if paid_years %}<span class="years">{% for y in paid_years %}<span>{{ y }}</span>{% endfor %}</span>{% else %}—{% endif %}</td></tr>
-        </table>
-      </div>
+<div class="tp-grid">
+  <div class="tp-col">
+    <div class="tp-card tp-profile">
+      {% if m.photo %}<img src="{{ m.photo.url }}" alt="">{% else %}<div class="ph">{{ m.first_name|slice:":1" }}{{ m.last_name|slice:":1" }}</div>{% endif %}
+      <dl class="tp-dl">
+        <dt>Email</dt><dd>{{ m.user.email|default:"—" }}</dd>
+        <dt>Phone</dt><dd>{{ m.phone|default:"—" }}</dd>
+        <dt>Gender / born</dt><dd>{{ m.get_gender_display }}{% if m.date_of_birth %} · {{ m.date_of_birth|date:"j M Y" }}{% endif %}</dd>
+        <dt>NIDA</dt><dd>{{ m.national_id|default:"—" }}</dd>
+        <dt>Cadre</dt><dd>{{ m.cadre_name|default:"—" }}</dd>
+        <dt>Professional reg. no.</dt><dd>{{ m.professional_reg_no|default:"—" }}</dd>
+        <dt>Workplace</dt><dd>{{ m.workplace|default:"—" }}</dd>
+        <dt>Region / district</dt><dd>{{ m.region }}{% if m.district %} · {{ m.district }}{% endif %}</dd>
+        <dt>Joined</dt><dd>{{ m.joined_on|date:"j M Y"|default:"—" }}</dd>
+        <dt>Years paid</dt><dd>{% if paid_years %}<span class="tp-years">{% for y in paid_years %}<span>{{ y }}</span>{% endfor %}</span>{% else %}—{% endif %}</dd>
+      </dl>
     </div>
-    <div class="card">
-      <h3>Payments</h3>
-      <div class="table-wrap"><table class="table">
-        <thead><tr><th>Date</th><th>Ref</th><th>For</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+    <div class="tp-card">
+      <h3><span class="t"><span class="ms">receipt_long</span> Payments</span></h3>
+      <div class="tp-table-wrap"><table class="tp-table">
+        <thead><tr><th>Date</th><th>Reference</th><th>For</th><th>Amount</th><th>Status</th><th></th></tr></thead>
         {% for p in payments %}
-        <tr><td class="small">{{ p.created|date:"j M Y" }}</td><td class="mono">{{ p.reference }}</td><td class="small">{{ p.description }}<br><span class="muted">{{ p.get_method_display }} {{ p.external_reference }}</span></td><td>{{ p.amount|intcomma }}</td><td><span class="badge {{ p.status }}">{{ p.get_status_display }}</span></td>
-        <td style="white-space:nowrap">{% if p.status == "awaiting" or p.status == "pending" %}{% include "dashboard/_payment_actions.html" %}{% endif %}</td></tr>
-        {% empty %}<tr><td colspan="6" class="empty">No payments.</td></tr>{% endfor %}
+        <tr><td class="muted">{{ p.created|date:"j M Y" }}</td><td class="tp-mono">{{ p.reference }}</td><td>{{ p.description }}<div class="muted">{{ p.get_method_display }} {{ p.external_reference }}</div></td><td><b>{{ p.amount|intcomma }}</b></td><td><span class="tp-pill {{ p.status }}">{{ p.get_status_display }}</span></td>
+        <td>{% if p.status == "awaiting" or p.status == "pending" %}{% include "dashboard/_payment_actions.html" %}{% endif %}</td></tr>
+        {% empty %}<tr><td colspan="6"><div class="tp-empty"><span class="ms">receipt</span>No payments yet.</div></td></tr>{% endfor %}
       </table></div>
     </div>
     {% if registrations %}
-    <div class="card"><h3>Event registrations</h3>
-      {% for r in registrations %}<div style="display:flex;justify-content:space-between;padding:.35rem 0">{{ r.event.title }} <span class="badge {{ r.status }}">{{ r.get_status_display }}</span></div>{% endfor %}
+    <div class="tp-card"><h3><span class="t"><span class="ms">confirmation_number</span> Event registrations</span></h3>
+      {% for r in registrations %}<div class="tp-row"><div class="who"><b>{{ r.event.title }}</b><span>{{ r.event.start_date|date:"j M Y" }}</span></div><span class="tp-pill {{ r.status }}">{{ r.get_status_display }}</span></div>{% endfor %}
     </div>
     {% endif %}
   </div>
-  <div class="card" style="align-self:start">
-    <h3>Record an office payment</h3>
-    <p class="small muted">For cash or transfers received outside the website. The payment is marked as PAID immediately{% if not m.membership_number %} and a membership number is issued{% endif %}.</p>
-    <form method="post" novalidate>{% csrf_token %}
-      {% include "partials/form.html" %}
-      <button class="btn btn-primary btn-block" style="margin-top:14px">Record payment</button>
+  <div class="tp-card" style="align-self:start">
+    <h3><span class="t"><span class="ms">point_of_sale</span> Record an office payment</span></h3>
+    <p style="font-size:13px;color:var(--tp-mute);margin:-6px 0 14px">For cash or transfers received outside the website. It is marked PAID immediately{% if not m.membership_number %} and a membership number is issued{% endif %}.</p>
+    <form class="tp-form" method="post" novalidate>{% csrf_token %}
+      {% for field in form %}<div><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.errors %}<div class="err">{{ field.errors|join:" " }}</div>{% endif %}</div>{% endfor %}
+      <button class="tp-btn g" style="justify-content:center"><span class="ms">save</span> Record payment</button>
     </form>
-    {% if m.admin_notes %}<hr><p class="small"><b>Notes:</b> {{ m.admin_notes|linebreaksbr }}</p>{% endif %}
+    {% if m.admin_notes %}<p style="font-size:13px;margin-top:16px"><b>Notes:</b> {{ m.admin_notes|linebreaksbr }}</p>{% endif %}
   </div>
 </div>
 {% endblock %}

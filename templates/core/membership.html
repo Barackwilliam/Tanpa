@@ -1,48 +1,54 @@
-{% extends "base.html" %}{% load humanize %}
+{% extends "base.html" %}{% load humanize static %}
 {% block title %}Membership · {{ site.short_name }}{% endblock %}
 {% block content %}
-{% include "core/page_head.html" with title="Membership" subtitle="Join the national body of non-physician anaesthesia providers and grow with your profession." %}
-<section class="section">
+{% include "core/page_head.html" with title="Membership that works as hard as you do" subtitle="Join Tanzania's national body of non-physician anaesthesia providers, entirely online." crumb="Membership" %}
+<section class="section dark grain" style="padding-top:90px">
   <div class="wrap">
-    <div class="section-head"><span class="eyebrow">How to join</span><h2>Four steps to an active membership</h2></div>
-    <div class="steps">
-      <div class="step"><h3>Create an account</h3><p class="muted small">Register with your email, professional details and a passport photo.</p></div>
-      <div class="step"><h3>Pay your fees</h3><p class="muted small">Pay the entry fee and the annual subscription by mobile money or bank.</p></div>
-      <div class="step"><h3>Get your number</h3><p class="muted small">Once your payment is confirmed you receive a permanent TANPA membership number.</p></div>
-      <div class="step"><h3>Download your ID</h3><p class="muted small">Print your ID card. Renew every year to stay active.</p></div>
+    <div class="journey" data-reveal>
+      <span class="fill"></span>
+      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="user" %}</div><h3>Create an account</h3><p>Email, professional details and a passport photo.</p></div>
+      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="pay" %}</div><h3>Pay your fees</h3><p>Entry fee + annual subscription, by mobile money or bank.</p></div>
+      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="shield" %}</div><h3>Get your number</h3><p>Issued as soon as your payment is confirmed.</p></div>
+      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="card" %}</div><h3>Download your ID</h3><p>Renew every year to stay active.</p></div>
     </div>
+    <div class="center" style="margin-top:56px"><a class="btn btn-yellow btn-lg" href="{% url 'members:register' %}" data-magnetic>Start my registration {% include "partials/icon.html" with name="arrow" size=20 %}</a></div>
   </div>
 </section>
-<section class="section soft">
-  <div class="wrap grid-2" style="align-items:start">
-    <div>
-      <span class="eyebrow">Fees for {{ fees.year }}</span>
-      <h2>Membership fees</h2>
-      <div class="table-wrap" style="margin-top:1rem">
-        <table class="table">
-          <tr><td>Entry fee (kiingilio), paid once</td><td style="text-align:right"><b>TZS {{ fees.entry_fee|intcomma }}</b></td></tr>
-          <tr><td>Annual subscription (ada ya mwaka)</td><td style="text-align:right"><b>TZS {{ fees.annual_fee|intcomma }}</b></td></tr>
-          <tr><td><b>New member total</b></td><td style="text-align:right"><b style="color:var(--green-700)">TZS {{ fees.entry_fee|add:fees.annual_fee|intcomma }}</b></td></tr>
-        </table>
-      </div>
-      <h3 style="margin-top:2rem">Who is an active member?</h3>
-      <div class="grid-2" style="gap:14px;margin-top:.8rem">
-        <div class="card"><span class="badge active">Active</span><p class="small" style="margin:.6rem 0 0">Entry fee paid <b>and</b> the annual subscription for the current year paid.</p></div>
-        <div class="card"><span class="badge non_active">Non-active</span><p class="small" style="margin:.6rem 0 0">A registered member who has not yet paid this year's subscription.</p></div>
+
+<section class="section">
+  <div class="wrap">
+    <div class="head center" data-reveal><span class="kicker">Fees{% if fees %} {{ fees.year }}{% endif %}</span><h2>What it costs</h2></div>
+    {% if fees %}
+    <div class="fees">
+      <div class="fee" data-reveal><small>Entry fee · once</small><b><sup>TZS</sup>{{ fees.entry_fee|intcomma }}</b><p class="muted" style="margin:0">Kiingilio</p></div>
+      <div class="fee" data-reveal style="--d:.08s"><small>Annual subscription</small><b><sup>TZS</sup>{{ fees.annual_fee|intcomma }}</b><p class="muted" style="margin:0">Ada ya mwaka</p></div>
+      <div class="fee hot" data-reveal style="--d:.16s"><small style="color:var(--y)">New member total</small><b><sup>TZS</sup>{{ fees.joining_total|intcomma }}</b><p style="margin:0">Paid once at registration</p></div>
+    </div>
+    {% else %}
+    <div class="tba" style="max-width:640px;margin:0 auto" data-reveal><div class="ic">{% include "partials/icon.html" with name="clock" %}</div><div><b style="color:var(--ink)">Fees will be announced soon.</b><br><span class="muted">Create your account now and pay as soon as fees are published.</span></div></div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section mist">
+  <div class="wrap about-grid" style="align-items:start">
+    <div data-reveal="left">
+      <span class="kicker">Status explained</span>
+      <h2>Active or <span class="grad-text-dark">non-active?</span></h2>
+      <div style="display:grid;gap:14px;margin-top:1.5rem">
+        <div class="card flat"><span class="pill active">Active member</span><p style="margin:.8rem 0 0">Entry fee paid <b>and</b> the current year's subscription paid. Can download the ID card and get the member rate at conferences.</p></div>
+        <div class="card flat"><span class="pill non_active">Non-active member</span><p style="margin:.8rem 0 0">Registered, but this year's subscription isn't paid yet. Pay online at any time to become active again.</p></div>
+        <div class="card flat"><span class="pill pending">Pending</span><p style="margin:.8rem 0 0">Account created; the entry fee hasn't been paid yet.</p></div>
       </div>
     </div>
-    <div class="card">
-      <h3>Membership benefits</h3>
-      <ul class="checklist">
-        <li>Official TANPA membership number and ID card</li>
-        <li>Reduced fees for the annual scientific conference &amp; AGM</li>
-        <li>Continuous professional development (CPD) opportunities</li>
-        <li>A voice in national anaesthesia policy and advocacy</li>
-        <li>Networking with anaesthesia providers across all regions</li>
-        <li>Voting rights at the Annual General Meeting</li>
-      </ul>
-      <a class="btn btn-primary btn-block" href="{% url 'members:register' %}">Register now</a>
-      <p class="small muted center" style="margin:.8rem 0 0">Already a member? <a href="{% url 'login' %}">Sign in</a> to renew.</p>
+    <div data-reveal="right">
+      <span class="kicker">Benefits</span>
+      <h2>Why join</h2>
+      {% if site.benefits_list %}<ul class="ticks">{% for b in site.benefits_list %}<li>{{ b }}</li>{% endfor %}</ul>
+      {% else %}<ul class="ticks"><li>Official TANPA membership number and QR-verified ID card</li><li>Member rate for conferences and meetings</li><li>Online payments, receipts and records in one place</li></ul>{% endif %}
+      <div class="card3d-stage" style="padding-top:10px">
+        <div class="card3d"><div class="c-head"><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""><div><b>TANZANIA ASSOCIATION OF NON PHYSICIAN ANAESTHETISTS</b><span>MEMBERSHIP IDENTITY CARD</span></div></div><div class="c-body"><div class="c-photo">{% include "partials/icon.html" with name="user" size=34 %}</div><div><div class="c-name">Your name</div><div class="c-f">Membership No.</div><div class="c-v" style="font-family:var(--f-mono)">TANPA/{% now "Y" %}/0000</div></div></div><div class="c-qr"></div><div class="c-foot"><span>VALID UNTIL <b>31 DEC {% now "Y" %}</b></span><em>ACTIVE</em></div></div>
+      </div>
     </div>
   </div>
 </section>

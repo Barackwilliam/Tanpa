@@ -1,11 +1,11 @@
 """Fill an empty site with starter content (fees, conference, news, gallery).
 
     python manage.py seed_demo            # site content only
-    python manage.py seed_demo --members  # also 12 fake members for testing the dashboard
+    python manage.py seed_demo --members  # ALSO fake members + demo fees (testing only, never in production)
 """
 
 import random
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 
 from django.conf import settings
@@ -14,7 +14,7 @@ from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from core.models import GalleryImage, Post, SiteSettings
+from core.models import GalleryImage, SiteSettings
 from events.models import Event
 from members.models import Cadre, Member, REGIONS
 from payments.models import FeeSchedule, Payment
@@ -40,54 +40,21 @@ class Command(BaseCommand):
         parser.add_argument("--members", action="store_true", help="Also create fake members (testing only)")
 
     def handle(self, *args, **opts):
+        # Only facts we actually have (name, logo, conference photos, the 4th conference).
+        # Everything else (about, fees, leaders, contacts...) is entered in the admin.
         SiteSettings.load()
-        year = timezone.localdate().year
-        FeeSchedule.objects.get_or_create(year=year, defaults={"entry_fee": 20000, "annual_fee": 50000})
 
-        if not Event.objects.exists():
+        if not Event.objects.filter(slug="4th-international-anaesthesia-scientific-conference-agm").exists():
             Event.objects.create(
                 title="4th International Anaesthesia Scientific Conference & AGM",
+                slug="4th-international-anaesthesia-scientific-conference-agm",
                 kind=Event.Kind.CONFERENCE,
                 theme="Strengthening anaesthesia practice for safer surgical care in Tanzania and beyond",
-                summary="Three days of scientific sessions, skills workshops and the Annual General Meeting.",
-                description="Join anaesthesia providers, partners and policy makers from across Tanzania and "
-                "the region.\n\nThe programme includes keynote lectures, oral and poster presentations, "
-                "hands-on skills stations, an exhibition by partners and the TANPA Annual General Meeting.",
                 venue="Morena Hotel", city="Dodoma",
                 start_date=date(2026, 4, 22), end_date=date(2026, 4, 24),
-                member_fee=150000, non_member_fee=250000, cpd_points=15,
+                registration_open=False,
             )
-            Event.objects.create(
-                title="5th International Anaesthesia Scientific Conference & AGM",
-                kind=Event.Kind.CONFERENCE,
-                theme="(Theme to be announced)",
-                summary="Save the date for the next TANPA scientific conference and AGM.",
-                description="Details, venue and the full programme will be announced by the secretariat.",
-                venue="To be announced", city="Dodoma",
-                start_date=date(year + 1, 4, 21), end_date=date(year + 1, 4, 23),
-                member_fee=150000, non_member_fee=250000, cpd_points=15,
-                registration_deadline=date(year + 1, 4, 10),
-            )
-            self.stdout.write("Created events")
-
-        if not Post.objects.exists():
-            Post.objects.create(
-                title="TANPA launches online membership registration",
-                summary="Members can now register, pay fees by mobile money and download their ID cards online.",
-                body="We are pleased to announce the new TANPA website and member portal.\n\n"
-                "All members are requested to create an account, update their details and pay the "
-                "annual subscription online. Active members can download their membership ID card "
-                "immediately after payment.",
-            )
-            Post.objects.create(
-                title="Highlights from the 4th International Conference & AGM in Dodoma",
-                summary="Hundreds of anaesthesia providers met in Dodoma under the theme of safer surgical care.",
-                body="The 4th International Anaesthesia Scientific Conference and AGM was held at Morena "
-                "Hotel, Dodoma from 22nd to 24th April 2026.\n\nThank you to all members, facilitators, "
-                "sponsors and partners who made the conference a success.",
-                published_at=timezone.now() - timedelta(days=30),
-            )
-            self.stdout.write("Created news")
+            self.stdout.write("Created the 4th conference")
 
         if not GalleryImage.objects.exists():
             src = Path(settings.BASE_DIR) / "static" / "img" / "gallery"
@@ -98,17 +65,18 @@ class Command(BaseCommand):
                 g = GalleryImage(caption=caption, album="4th International Conference 2026", order=i, is_featured=featured)
                 with path.open("rb") as fh:
                     g.image.save(name, File(fh), save=True)
-            self.stdout.write("Created gallery")
+            self.stdout.write("Uploaded gallery photos")
 
         if opts["members"]:
-            self._fake_members(year)
+            self._fake_members(timezone.localdate().year)
         self.stdout.write(self.style.SUCCESS("Done."))
 
     def _fake_members(self, year):
         User = get_user_model()
         first = ["Asha", "Juma", "Neema", "Baraka", "Rehema", "Emmanuel", "Zawadi", "Hamisi", "Grace", "Joseph", "Mwanaidi", "Peter"]
         last = ["Mushi", "Mwakyusa", "Kimaro", "Massawe", "Said", "Lyimo", "Mrema", "Ally", "Komba", "Shirima", "Mbwana", "Nyerere"]
-        fee = FeeSchedule.for_year(year)
+        fee, _ = FeeSchedule.objects.get_or_create(year=year, defaults={"entry_fee": 20000, "annual_fee": 50000})
+        cadres = [Cadre.objects.get_or_create(name=n)[0] for n in ["Demo cadre A", "Demo cadre B"]]
         for i, (fn, ln) in enumerate(zip(first, last)):
             email = f"{fn.lower()}.{ln.lower()}@example.com"
             if User.objects.filter(username=email).exists():
@@ -116,7 +84,7 @@ class Command(BaseCommand):
             u = User.objects.create_user(email, email, "demo-pass-123")
             m = Member.objects.create(
                 user=u, first_name=fn, last_name=ln, gender=random.choice("MF"), phone=f"07{random.randint(10000000, 99999999)}",
-                cadre=random.choice(Cadre.values[:5]), workplace=f"{random.choice(REGIONS)} Regional Referral Hospital",
+                cadre=random.choice(cadres), workplace=f"{random.choice(REGIONS)} Regional Referral Hospital",
                 region=random.choice(REGIONS),
             )
             if i % 4 == 3:

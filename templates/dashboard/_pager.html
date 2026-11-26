@@ -1,0 +1,5 @@
+{% if page.paginator.num_pages > 1 %}<div class="tp-pager">
+{% if page.has_previous %}<a class="tp-btn o sm" href="?{% if qs %}{{ qs }}&{% endif %}page={{ page.previous_page_number }}"><span class="ms">chevron_left</span></a>{% endif %}
+<span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+{% if page.has_next %}<a class="tp-btn o sm" href="?{% if qs %}{{ qs }}&{% endif %}page={{ page.next_page_number }}"><span class="ms">chevron_right</span></a>{% endif %}
+</div>{% endif %}

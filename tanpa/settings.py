@@ -14,6 +14,21 @@ import os
 from pathlib import Path
 
 
+def _load_dotenv(path):
+    """Tiny .env reader for local development (production uses real env vars)."""
+    if not path.exists():
+        return
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+
+
 def env_bool(name, default=False):
     return os.environ.get(name, str(default)).strip().lower() in ("1", "true", "yes", "on")
 
@@ -46,6 +61,8 @@ CSRF_TRUSTED_ORIGINS = [
 # Application definition
 
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.filters",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -96,17 +113,24 @@ WSGI_APPLICATION = "tanpa.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-if os.environ.get("POSTGRES_DB"):
+# Supabase Postgres: paste the connection string from
+# Supabase -> Project Settings -> Database -> Connection string (URI) into DATABASE_URL.
+# Use the *Session pooler* (port 5432) or direct connection. The Transaction pooler
+# (port 6543) also works; server-side cursors are disabled for it automatically.
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+if DATABASE_URL:
+    import dj_database_url
+
     DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ["POSTGRES_DB"],
-            "USER": os.environ.get("POSTGRES_USER", ""),
-            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", ""),
-            "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
-            "PORT": os.environ.get("POSTGRES_PORT", "5432"),
-        }
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=int(os.environ.get("DB_CONN_MAX_AGE", "60")),
+            conn_health_checks=True,
+            ssl_require="sslmode" not in DATABASE_URL and "localhost" not in DATABASE_URL,
+        )
     }
+    if ":6543" in DATABASE_URL:
+        DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
 else:
     DATABASES = {
         "default": {
@@ -153,8 +177,28 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+# Supabase Storage for every uploaded image/file. Without SUPABASE_URL (e.g. local dev)
+# files are kept on disk in MEDIA_ROOT.
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
+SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+SUPABASE_PUBLIC_BUCKET = os.environ.get("SUPABASE_PUBLIC_BUCKET", "tanpa-media")
+SUPABASE_PRIVATE_BUCKET = os.environ.get("SUPABASE_PRIVATE_BUCKET", "tanpa-private")
+USE_SUPABASE_STORAGE = bool(SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY)
+
 STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "default": {
+        "BACKEND": "core.storage.SupabaseStorage"
+        if USE_SUPABASE_STORAGE
+        else "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {"bucket": SUPABASE_PUBLIC_BUCKET, "public": True} if USE_SUPABASE_STORAGE else {},
+    },
+    # Payment slips: private bucket, served through short-lived signed URLs.
+    "private": {
+        "BACKEND": "core.storage.SupabaseStorage"
+        if USE_SUPABASE_STORAGE
+        else "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {"bucket": SUPABASE_PRIVATE_BUCKET, "public": False} if USE_SUPABASE_STORAGE else {},
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
         if not DEBUG
@@ -209,3 +253,90 @@ if not DEBUG:
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Admin theme (Unfold) -------------------------------------------------------
+from django.templatetags.static import static  # noqa: E402
+from django.urls import reverse_lazy  # noqa: E402
+
+UNFOLD = {
+    "SITE_TITLE": "TANPA Admin",
+    "SITE_HEADER": "TANPA",
+    "SITE_SUBHEADER": "Control centre",
+    "SITE_URL": "/",
+    "SITE_SYMBOL": "health_and_safety",
+    "SITE_ICON": lambda request: static("img/tanpa-logo-256.png"),
+    "SITE_FAVICONS": [{"rel": "icon", "type": "image/png", "href": lambda request: static("img/favicon.png")}],
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": True,
+    "SHOW_BACK_BUTTON": True,
+    "DASHBOARD_CALLBACK": "dashboard.views.admin_dashboard_callback",
+    "STYLES": [lambda request: static("css/admin.css")],
+    "LOGIN": {"image": lambda request: static("img/gallery/tanpa-02.jpg")},
+    "COLORS": {
+        "primary": {
+            "50": "#ecfbf1", "100": "#d0f5dd", "200": "#a4eabf", "300": "#6dd898",
+            "400": "#35bd6d", "500": "#14a24f", "600": "#0a8f3c", "700": "#087032",
+            "800": "#0a582c", "900": "#094826", "950": "#022914",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": "Overview",
+                "items": [
+                    {"title": "Dashboard", "icon": "space_dashboard", "link": reverse_lazy("admin:index")},
+                    {"title": "Members database", "icon": "groups", "link": reverse_lazy("dashboard:members")},
+                    {
+                        "title": "Confirm payments",
+                        "icon": "price_check",
+                        "link": reverse_lazy("dashboard:payments"),
+                        "badge": "dashboard.views.awaiting_badge",
+                    },
+                    {"title": "Event check-in", "icon": "qr_code_scanner", "link": reverse_lazy("dashboard:events")},
+                ],
+            },
+            {
+                "title": "Membership",
+                "separator": True,
+                "items": [
+                    {"title": "Members", "icon": "badge", "link": reverse_lazy("admin:members_member_changelist")},
+                    {"title": "Cadres", "icon": "medical_services", "link": reverse_lazy("admin:members_cadre_changelist")},
+                    {"title": "Payments", "icon": "payments", "link": reverse_lazy("admin:payments_payment_changelist")},
+                    {"title": "Fees per year", "icon": "request_quote", "link": reverse_lazy("admin:payments_feeschedule_changelist")},
+                ],
+            },
+            {
+                "title": "Events",
+                "separator": True,
+                "items": [
+                    {"title": "Conferences & meetings", "icon": "event", "link": reverse_lazy("admin:events_event_changelist")},
+                    {"title": "Registrations", "icon": "confirmation_number", "link": reverse_lazy("admin:events_eventregistration_changelist")},
+                ],
+            },
+            {
+                "title": "Website content",
+                "separator": True,
+                "items": [
+                    {"title": "Website settings", "icon": "tune", "link": reverse_lazy("admin:core_sitesettings_changelist")},
+                    {"title": "Leaders", "icon": "workspace_premium", "link": reverse_lazy("admin:core_leader_changelist")},
+                    {"title": "News", "icon": "newspaper", "link": reverse_lazy("admin:core_post_changelist")},
+                    {"title": "Gallery", "icon": "photo_library", "link": reverse_lazy("admin:core_galleryimage_changelist")},
+                    {"title": "Partners & sponsors", "icon": "handshake", "link": reverse_lazy("admin:core_partner_changelist")},
+                    {"title": "Contact messages", "icon": "mail", "link": reverse_lazy("admin:core_contactmessage_changelist"),
+                     "badge": "dashboard.views.unread_badge"},
+                ],
+            },
+            {
+                "title": "Access",
+                "separator": True,
+                "items": [
+                    {"title": "Staff users", "icon": "person", "link": reverse_lazy("admin:auth_user_changelist")},
+                    {"title": "Roles", "icon": "admin_panel_settings", "link": reverse_lazy("admin:auth_group_changelist")},
+                ],
+            },
+        ],
+    },
+}

@@ -1,102 +1,102 @@
 {% extends "base.html" %}{% load humanize %}
 {% block title %}My portal · TANPA{% endblock %}
 {% block content %}
-<section class="section" style="padding-top:40px">
-  <div class="wrap portal">
-    <div style="display:grid;gap:16px">
-      {% include "members/_card.html" %}
-      <div class="card">
-        <h3 style="font-size:1rem">Subscriptions paid</h3>
-        {% if paid_years %}<div class="years">{% for y in paid_years %}<span>{{ y }}</span>{% endfor %}</div>
-        {% else %}<p class="muted small" style="margin:0">None yet.</p>{% endif %}
+<section class="portal-hero grain">
+  <div class="hero-grid-bg"></div>
+  <div class="wrap">
+    <div>
+      <span class="kicker light">Member portal · {% now "l j F" %}</span>
+      <h1>Habari, {{ member.first_name }}.</h1>
+      <p style="font-size:1.12rem;max-width:30em">{% if member.is_active_member %}You're all set for {{ year }}. Your card is ready to download.{% elif member.status == "pending" %}One step left: pay your fees to receive your membership number and ID card.{% elif member.status == "suspended" %}Your membership is currently suspended. Please contact the secretariat.{% else %}Renew your {{ year }} subscription to become active again.{% endif %}</p>
+      {% if member.membership_number %}<p class="mono" style="color:var(--y);font-size:1.1rem;margin:0">{{ member.membership_number }}</p>{% endif %}
+    </div>
+    {% include "members/_card.html" %}
+  </div>
+</section>
+
+<section class="portal-body">
+  <div class="wrap">
+    {% with st=member.status %}
+    <div class="status-xl {{ st }}" data-reveal>
+      <div class="ring" style="--p:{% if st == 'active' %}100{% elif st == 'pending' %}25{% elif st == 'non_active' %}50{% else %}100{% endif %}">
+        {% if st == "active" %}{% include "partials/icon.html" with name="check" %}{% elif st == "pending" %}{% include "partials/icon.html" with name="clock" %}{% else %}{% include "partials/icon.html" with name="x" %}{% endif %}
       </div>
-      <div class="card small" style="display:grid;gap:.4rem">
-        <a href="{% url 'members:profile' %}">Edit my profile</a>
-        <a href="{% url 'password_change' %}">Change password</a>
-        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-danger btn-sm" style="margin-top:.4rem">Sign out</button></form>
+      <div>
+        {% if st == "active" %}<h3>Active member · {{ year }}</h3><p>Entry fee and {{ year }} subscription paid. Thank you for supporting TANPA.</p>
+        {% elif st == "pending" %}<h3>Complete your membership</h3><p>{% if fees %}Entry fee TZS {{ fees.entry_fee|intcomma }} + {{ year }} subscription TZS {{ fees.annual_fee|intcomma }}.{% else %}Fees will be published soon. We'll be ready for your payment then.{% endif %}</p>
+        {% elif st == "suspended" %}<h3>Membership suspended</h3><p>Please contact the TANPA secretariat for help.</p>
+        {% else %}<h3>{{ year }} subscription not paid</h3><p>You're currently <b>non-active</b>.{% if fees %} Renew for TZS {{ fees.annual_fee|intcomma }}.{% endif %}</p>{% endif %}
+      </div>
+      <div>
+        {% if st == "active" %}<a class="btn btn-primary btn-lg" href="{% url 'members:id_card' %}">{% include "partials/icon.html" with name="download" size=18 %} Download ID card</a>
+        {% elif st == "pending" and fees %}<form method="post" action="{% url 'members:pay' 'joining' %}">{% csrf_token %}<button class="btn btn-yellow btn-lg" data-magnetic>Pay TZS {{ fees.joining_total|intcomma }} {% include "partials/icon.html" with name="arrow" size=18 %}</button></form>
+        {% elif st == "non_active" and fees %}<form method="post" action="{% url 'members:pay' 'annual' %}">{% csrf_token %}<input type="hidden" name="year" value="{{ year }}"><button class="btn btn-yellow btn-lg" data-magnetic>Renew {{ year }} {% include "partials/icon.html" with name="arrow" size=18 %}</button></form>{% endif %}
       </div>
     </div>
+    {% endwith %}
 
-    <div style="display:grid;gap:22px;min-width:0">
-      <div>
-        <h1 style="font-size:1.8rem;margin-bottom:.2rem">Hello, {{ member.first_name }}</h1>
-        <p class="muted" style="margin:0">Here is your TANPA membership at a glance.</p>
+    {% if open_payments %}
+    <div class="panel" style="margin-top:20px;border-color:#fde68a;background:#fffbeb">
+      <h3>Payments in progress</h3>
+      {% for p in open_payments %}
+      <div class="list-row">
+        <div><b style="color:var(--ink)">{{ p.description }}</b> · TZS {{ p.amount|intcomma }} &nbsp;<span class="pill {{ p.status }}">{{ p.get_status_display }}</span></div>
+        {% if p.status == "pending" %}<a class="btn btn-outline btn-sm" href="{% url 'payments:checkout' p.reference %}">Continue payment</a>{% else %}<span class="small muted">The treasurer is checking your payment.</span>{% endif %}
       </div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
-      {% with st=member.status %}
-      <div class="status-panel {{ st }}">
-        <div class="status-icon">{% if st == "active" %}{% include "partials/icon.html" with name="check" %}{% elif st == "pending" %}{% include "partials/icon.html" with name="clock" %}{% else %}{% include "partials/icon.html" with name="x" %}{% endif %}</div>
-        <div style="flex:1">
-          {% if st == "active" %}
-            <h3>You are an active member for {{ year }}</h3>
-            <p>Your entry fee and {{ year }} subscription are paid. Download your ID card below.</p>
-            <div class="actions"><a class="btn btn-primary btn-sm" href="{% url 'members:id_card' %}">{% include "partials/icon.html" with name="download" size=16 %} Download ID card</a></div>
-          {% elif st == "pending" %}
-            <h3>Complete your membership</h3>
-            <p>Pay the entry fee (TZS {{ fees.entry_fee|intcomma }}) and the {{ year }} subscription (TZS {{ fees.annual_fee|intcomma }}) to receive your membership number and ID card.</p>
-            <div class="actions">
-              <form method="post" action="{% url 'members:pay' 'joining' %}">{% csrf_token %}<button class="btn btn-primary btn-sm">Pay TZS {{ fees.entry_fee|add:fees.annual_fee|intcomma }} now</button></form>
-            </div>
-          {% elif st == "suspended" %}
-            <h3>Your membership is suspended</h3>
-            <p>Please contact the TANPA secretariat for assistance.</p>
-          {% else %}
-            <h3>Your {{ year }} subscription is not paid</h3>
-            <p>You are currently a <b>non-active</b> member. Pay TZS {{ fees.annual_fee|intcomma }} to become active and download your ID card.</p>
-            <div class="actions">
-              <form method="post" action="{% url 'members:pay' 'annual' %}">{% csrf_token %}<input type="hidden" name="year" value="{{ year }}"><button class="btn btn-primary btn-sm">Pay {{ year }} subscription</button></form>
-            </div>
-          {% endif %}
+    <div class="qgrid">
+      <a class="qa {% if not member.is_active_member %}locked{% endif %}" href="{% url 'members:id_card' %}" data-reveal><span class="go">↗</span><div class="ic">{% include "partials/icon.html" with name="card" %}</div><b>ID card</b><small>{% if member.is_active_member %}Download PDF{% else %}Active members only{% endif %}</small></a>
+      <a class="qa" href="{% url 'events:list' %}" data-reveal style="--d:.05s"><span class="go">↗</span><div class="ic">{% include "partials/icon.html" with name="calendar" %}</div><b>Conferences</b><small>Register &amp; pay</small></a>
+      <a class="qa" href="{% url 'members:payments' %}" data-reveal style="--d:.1s"><span class="go">↗</span><div class="ic">{% include "partials/icon.html" with name="receipt" %}</div><b>Payments</b><small>History &amp; receipts</small></a>
+      <a class="qa" href="{% url 'members:profile' %}" data-reveal style="--d:.15s"><span class="go">↗</span><div class="ic">{% include "partials/icon.html" with name="user" %}</div><b>My profile</b><small>Update details &amp; photo</small></a>
+    </div>
+
+    <div class="p-grid">
+      <div style="display:grid;gap:20px;align-content:start">
+        <div class="panel" data-reveal>
+          <h3>Upcoming events <a class="small" href="{% url 'events:list' %}">All →</a></h3>
+          {% for e in upcoming %}
+          <div class="list-row">
+            <div style="display:flex;gap:14px;align-items:center"><div class="tp-date" style="width:54px;text-align:center;border-radius:14px;padding:8px 0;background:linear-gradient(160deg,var(--g-600),var(--g-900));color:#fff;line-height:1"><b style="display:block;font-family:var(--f-display);font-size:1.3rem">{{ e.start_date|date:"j" }}</b><span style="font-size:.62rem;color:var(--y);font-weight:800;letter-spacing:.1em">{{ e.start_date|date:"M"|upper }}</span></div><div><b style="color:var(--ink)">{{ e.title }}</b><br><span class="small muted">{{ e.venue }}, {{ e.city }}</span></div></div>
+            <a class="btn btn-outline btn-sm" href="{{ e.get_absolute_url }}">View</a>
+          </div>
+          {% empty %}<p class="muted" style="margin:0">No upcoming events right now.</p>{% endfor %}
         </div>
-      </div>
-      {% endwith %}
-
-      {% if open_payments %}
-      <div class="card" style="border-color:#f3e2a0;background:var(--yellow-50)">
-        <h3 style="font-size:1rem">Payments in progress</h3>
-        {% for p in open_payments %}
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;padding:.5rem 0">
-          <div><b>{{ p.description }}</b> · TZS {{ p.amount|intcomma }} <span class="badge {{ p.status }}">{{ p.get_status_display }}</span></div>
-          {% if p.status == "pending" %}<a class="btn btn-outline btn-sm" href="{% url 'payments:checkout' p.reference %}">Continue payment</a>{% else %}<span class="small muted">The treasurer is checking your payment.</span>{% endif %}
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      <div class="quick">
-        {% if member.is_active_member %}<a href="{% url 'members:id_card' %}"><span class="icon-badge" style="margin:0">{% include "partials/icon.html" with name="card" %}</span><span>ID card<small>Download PDF</small></span></a>
-        {% else %}<span class="disabled"><span class="icon-badge" style="margin:0">{% include "partials/icon.html" with name="card" %}</span><span>ID card<small>Active members only</small></span></span>{% endif %}
-        <a href="{% url 'events:list' %}"><span class="icon-badge yellow" style="margin:0">{% include "partials/icon.html" with name="calendar" %}</span><span>Conferences<small>Register &amp; pay</small></span></a>
-        <a href="{% url 'members:payments' %}"><span class="icon-badge navy" style="margin:0">{% include "partials/icon.html" with name="receipt" %}</span><span>Payments<small>History &amp; receipts</small></span></a>
-      </div>
-
-      {% if upcoming %}
-      <div class="card">
-        <h3 style="font-size:1rem">Upcoming events</h3>
-        {% for e in upcoming %}
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.6rem 0;border-top:1px solid var(--line);flex-wrap:wrap">
-          <div><b>{{ e.title }}</b><br><span class="small muted">{{ e.start_date|date:"j M" }} – {{ e.end_date|date:"j M Y" }} · {{ e.city }}</span></div>
-          <a class="btn btn-outline btn-sm" href="{{ e.get_absolute_url }}">View</a>
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      {% if registrations %}
-      <div>
-        <h3 style="font-size:1rem">My event registrations</h3>
-        <div class="table-wrap"><table class="table">
-          <thead><tr><th>Event</th><th>Status</th><th></th></tr></thead>
-          <tbody>
+        {% if registrations %}
+        <div class="panel" data-reveal>
+          <h3>My event registrations</h3>
           {% for r in registrations %}
-            <tr><td><a href="{{ r.event.get_absolute_url }}">{{ r.event.title }}</a><br><span class="small muted">{{ r.event.start_date|date:"j M Y" }}</span></td>
-            <td><span class="badge {{ r.status }}">{{ r.get_status_display }}</span></td>
-            <td style="text-align:right">{% if r.status == "confirmed" %}<a class="btn btn-outline btn-sm" href="{% url 'events:badge' r.event.slug %}">Badge</a>{% elif r.status == "pending" %}<a class="btn btn-primary btn-sm" href="{% url 'events:pay' r.event.slug %}">Pay</a>{% endif %}</td></tr>
+          <div class="list-row">
+            <div><b style="color:var(--ink)">{{ r.event.title }}</b><br><span class="small muted">{{ r.event.start_date|date:"j M Y" }}</span></div>
+            <div style="display:flex;gap:10px;align-items:center"><span class="pill {{ r.status }}">{{ r.get_status_display }}</span>
+            {% if r.status == "confirmed" %}<a class="btn btn-primary btn-sm" href="{% url 'events:badge' r.event.slug %}">Badge</a>{% elif r.status == "pending" %}<a class="btn btn-yellow btn-sm" href="{% url 'events:pay' r.event.slug %}">Pay</a>{% endif %}</div>
+          </div>
           {% endfor %}
-          </tbody>
-        </table></div>
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
+      <div style="display:grid;gap:20px;align-content:start">
+        <div class="panel" data-reveal>
+          <h3>Subscriptions paid</h3>
+          {% if paid_years %}<div class="yr">{% for y in paid_years %}<span>{{ y }}</span>{% endfor %}</div>{% else %}<p class="muted" style="margin:0">None yet.</p>{% endif %}
+        </div>
+        <div class="panel" data-reveal>
+          <h3>My details</h3>
+          <div class="small" style="display:grid;gap:8px">
+            <div><span class="muted">Email ·</span> {{ member.user.email }}</div>
+            <div><span class="muted">Phone ·</span> {{ member.phone }}</div>
+            <div><span class="muted">Workplace ·</span> {{ member.workplace }}</div>
+            <div><span class="muted">Region ·</span> {{ member.region }}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px">
+            <a class="btn btn-outline btn-sm" href="{% url 'password_change' %}">Change password</a>
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-danger btn-sm">Log out</button></form>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>

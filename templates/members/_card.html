@@ -1,11 +1,13 @@
-<div class="member-card">
-  {% if member.photo %}<img class="photo" src="{{ member.photo.url }}" alt="">{% else %}<div class="photo"></div>{% endif %}
-  <h2>{{ member.display_name }}</h2>
-  <div class="num">{{ member.membership_number|default:"Number issued after payment" }}</div>
-  <dl>
-    <dt>Status</dt><dd><span class="badge {{ member.status }}">{{ member.status_label }}</span></dd>
-    <dt>Cadre</dt><dd>{{ member.get_cadre_display }}</dd>
-    <dt>Region</dt><dd>{{ member.region }}</dd>
-    {% if member.joined_on %}<dt>Joined</dt><dd>{{ member.joined_on|date:"j M Y" }}</dd>{% endif %}
-  </dl>
-</div>
+{% load static %}<div class="card3d-stage"><div class="card3d" aria-label="Your membership card">
+  <div class="c-head"><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""><div><b>TANZANIA ASSOCIATION OF NON PHYSICIAN ANAESTHETISTS</b><span>MEMBERSHIP IDENTITY CARD</span></div></div>
+  <div class="c-body">
+    <div class="c-photo">{% if member.photo %}<img src="{{ member.photo.url }}" alt="">{% else %}{{ member.first_name|slice:":1" }}{{ member.last_name|slice:":1" }}{% endif %}</div>
+    <div style="min-width:0">
+      <div class="c-name">{{ member.display_name }}</div>
+      <div class="c-f">Membership No.</div><div class="c-v" style="font-family:var(--f-mono)">{{ member.membership_number|default:"Issued after payment" }}</div>
+      <div class="c-f">Cadre</div><div class="c-v">{{ member.cadre_name|default:"—" }}</div>
+    </div>
+  </div>
+  {% if member.is_active_member %}<div class="c-qr"></div>{% endif %}
+  <div class="c-foot"><span>{% if member.is_active_member %}VALID UNTIL <b>31 DEC {% now "Y" %}</b>{% else %}{{ member.region|upper }}{% endif %}</span><em {% if not member.is_active_member %}style="background:{% if member.status == 'pending' %}#b7791f{% else %}#b91c1c{% endif %}"{% endif %}>{{ member.status_label|upper|truncatechars:18 }}</em></div>
+</div></div>

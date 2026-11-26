@@ -1,24 +1,12 @@
-{% extends "base.html" %}{% load static %}
+{% extends "base.html" %}
 {% block title %}News · {{ site.short_name }}{% endblock %}
 {% block content %}
 {% include "core/page_head.html" with title="News & updates" subtitle="Announcements, conference reports and updates from the secretariat." crumb="News" %}
 <section class="section">
   <div class="wrap">
-    {% if page.object_list %}
-    <div class="grid-3">
-      {% for p in page %}
-      <article class="card post-card lift">
-        <a class="thumb" href="{{ p.get_absolute_url }}" style="background-image:url('{% if p.image %}{{ p.image.url }}{% else %}{% static 'img/gallery/tanpa-06.jpg' %}{% endif %}')"></a>
-        <div class="body">
-          <span class="date">{{ p.published_at|date:"j F Y" }}</span>
-          <h3><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></h3>
-          <p class="muted small">{{ p.summary|default:p.body|truncatewords:24 }}</p>
-        </div>
-      </article>
-      {% endfor %}
-    </div>
+    {% if page.object_list %}<div class="news">{% for p in page %}{% include "core/_post_card.html" %}{% endfor %}</div>
     {% include "partials/pagination.html" %}
-    {% else %}<p class="empty">No news yet. Check back soon.</p>{% endif %}
+    {% else %}<div class="coming">{% include "partials/icon.html" with name="book" %}<b style="color:var(--ink)">No news yet</b><p class="muted" style="margin:.4rem 0 0">Updates from the secretariat will appear here.</p></div>{% endif %}
   </div>
 </section>
 {% endblock %}

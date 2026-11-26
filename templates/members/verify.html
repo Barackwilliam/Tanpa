@@ -1,20 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Member verification · TANPA{% endblock %}
 {% block content %}
-<section class="section" style="padding-top:48px">
-  <div class="wrap">
-    <div class="card verify-card">
-      {% if status == "active" %}<div class="verify-banner ok">✔ ACTIVE MEMBER · {{ year }}</div>
-      {% elif status == "pending" %}<div class="verify-banner warn">Registration not complete</div>
-      {% elif status == "suspended" %}<div class="verify-banner bad">✖ MEMBERSHIP SUSPENDED</div>
-      {% else %}<div class="verify-banner bad">✖ NON-ACTIVE · {{ year }} subscription not paid</div>{% endif %}
-      {% if m.photo %}<img class="photo" src="{{ m.photo.url }}" alt="">{% endif %}
-      <h2 style="margin-bottom:.2rem">{{ m.display_name }}</h2>
-      <p class="mono" style="font-family:ui-monospace,monospace;color:var(--green-700);font-weight:700">{{ m.membership_number|default:"—" }}</p>
-      <p class="muted" style="margin:0">{{ m.get_cadre_display }} · {{ m.region }}</p>
-      <p class="small muted" style="margin-top:1.4rem">Verified against the official TANPA register on {% now "j F Y, H:i" %}.</p>
+<section class="verify-hero grain {% if status == 'active' %}{% elif status == 'pending' %}warn{% else %}bad{% endif %}">
+  <div class="hero-grid-bg"></div>
+  <div class="vcard">
+    {% if status == "active" %}<div class="band">{% include "partials/icon.html" with name="shield" size=18 %} VERIFIED · ACTIVE MEMBER {{ year }}</div>
+    {% elif status == "pending" %}<div class="band warn">REGISTRATION NOT COMPLETE</div>
+    {% elif status == "suspended" %}<div class="band bad">MEMBERSHIP SUSPENDED</div>
+    {% else %}<div class="band bad">NON-ACTIVE · {{ year }} NOT PAID</div>{% endif %}
+    <div class="in">
+      {% if m.photo %}<img class="photo" src="{{ m.photo.url }}" alt="">{% else %}<div class="ph">{{ m.first_name|slice:":1" }}{{ m.last_name|slice:":1" }}</div>{% endif %}
+      <h2>{{ m.display_name }}</h2>
+      <p class="num">{{ m.membership_number|default:"—" }}</p>
+      <p class="muted" style="margin:0">{{ m.cadre_name|default:"" }}{% if m.cadre_name %} · {% endif %}{{ m.region }}</p>
+      <div class="ecg-box" style="margin:24px 0 14px;background:var(--g-950)">{% include "partials/ecg_monitor.html" %}</div>
+      <p class="small muted" style="margin:0">Checked against the official TANPA register · {% now "j M Y, H:i" %}</p>
+      <a class="btn btn-outline btn-sm" style="margin-top:18px" href="{% url 'members:verify_lookup' %}">Verify another member</a>
     </div>
-    <p class="center" style="margin-top:20px"><a href="{% url 'members:verify_lookup' %}">Verify another member</a></p>
   </div>
 </section>
 {% endblock %}

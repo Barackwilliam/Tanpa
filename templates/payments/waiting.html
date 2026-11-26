@@ -1,14 +1,15 @@
 {% extends "base.html" %}{% load humanize %}
 {% block title %}Approve on your phone · TANPA{% endblock %}
+{% block body_class %}page-light{% endblock %}
 {% block content %}
-<section class="section">
+<section class="section" style="padding-top:160px;background:var(--mist);min-height:100svh">
   <div class="wrap">
-    <div class="card center" style="max-width:520px;margin:0 auto;padding:40px 28px" data-status-url="{% url 'payments:status' payment.reference %}" data-receipt-url="{% url 'payments:receipt' payment.reference %}" data-checkout-url="{% url 'payments:checkout' payment.reference %}">
-      <div class="spinner" data-spinner></div>
-      <h2 style="font-size:1.4rem" data-title>Check your phone</h2>
-      <p data-text>A payment request for <b>TZS {{ payment.amount|intcomma }}</b> was sent to <b>{{ payment.phone }}</b>. Enter your PIN to approve it. This page updates automatically.</p>
-      <p class="small muted">Reference {{ payment.reference }}</p>
-      <a class="btn btn-outline btn-sm" href="{% url 'payments:checkout' payment.reference %}">Didn't get a prompt? Try again</a>
+    <div class="card center" style="max-width:560px;margin:0 auto;padding:48px 32px" data-status-url="{% url 'payments:status' payment.reference %}" data-receipt-url="{% url 'payments:receipt' payment.reference %}">
+      <div class="pulse-ring" data-spinner>{% include "partials/icon.html" with name="pay" size=44 %}</div>
+      <h2 style="font-size:2rem" data-title>Check your phone</h2>
+      <p data-text>A request for <b>TZS {{ payment.amount|intcomma }}</b> was sent to <b>{{ payment.phone }}</b>. Enter your PIN to approve. This page updates by itself.</p>
+      <p class="small muted mono">{{ payment.reference }}</p>
+      <a class="btn btn-outline btn-sm" href="{% url 'payments:checkout' payment.reference %}">No prompt? Try again</a>
     </div>
   </div>
 </section>

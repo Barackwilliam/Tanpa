@@ -1,20 +1,19 @@
-{% extends "base.html" %}{% load static %}
+{% extends "base.html" %}
 {% block title %}Gallery · {{ site.short_name }}{% endblock %}
 {% block content %}
-{% include "core/page_head.html" with title="Gallery" subtitle="Photos from our conferences, meetings and activities." %}
+{% include "core/page_head.html" with title="Gallery" subtitle="Conferences, meetings and the people behind safe anaesthesia in Tanzania." %}
 <section class="section">
   <div class="wrap">
-    {% if albums %}
-    <div class="chips">
-      <a class="chip {% if not album %}on{% endif %}" href="{% url 'core:gallery' %}">All</a>
+    {% if albums %}<div class="chips">
+      <a class="chip {% if not album %}on{% endif %}" href="{% url 'core:gallery' %}">All photos</a>
       {% for a in albums %}<a class="chip {% if a == album %}on{% endif %}" href="?album={{ a|urlencode }}">{{ a }}</a>{% endfor %}
-    </div>
-    {% endif %}
+    </div>{% endif %}
     {% if images %}
-    <div class="gallery-grid">
-      {% for g in images %}<figure><a href="{{ g.image.url }}" target="_blank" rel="noopener"><img src="{{ g.image.url }}" alt="{{ g.caption }}" loading="lazy"></a>{% if g.caption %}<figcaption>{{ g.caption }}</figcaption>{% endif %}</figure>{% endfor %}
+    <div class="masonry">
+      {% for g in images %}<figure data-reveal data-lightbox="{{ g.image.url }}" data-caption="{{ g.caption }}"><img src="{{ g.image.url }}" alt="{{ g.caption }}" loading="lazy">{% if g.caption %}<figcaption>{{ g.caption }}</figcaption>{% endif %}</figure>{% endfor %}
     </div>
-    {% else %}<p class="empty">Photos will be added soon.</p>{% endif %}
+    {% else %}<div class="coming">{% include "partials/icon.html" with name="image" %}<b style="color:var(--ink)">Photos coming soon</b></div>{% endif %}
   </div>
 </section>
+<div class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer"><button class="lb-close" aria-label="Close">×</button><button class="lb-prev" aria-label="Previous">‹</button><img alt=""><button class="lb-next" aria-label="Next">›</button><p></p></div>
 {% endblock %}

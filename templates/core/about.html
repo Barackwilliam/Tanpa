@@ -1,44 +1,52 @@
 {% extends "base.html" %}{% load static %}
 {% block title %}About · {{ site.short_name }}{% endblock %}
 {% block content %}
-{% include "core/page_head.html" with title="About TANPA" subtitle=site.tagline %}
+{% include "core/page_head.html" with title="About TANPA" subtitle=site.tagline crumb="About" %}
 <section class="section">
-  <div class="wrap grid-2" style="align-items:start">
-    <div class="prose">
-      <span class="eyebrow">Our story</span>
+  <div class="wrap about-grid" style="align-items:start">
+    <div data-reveal="left">
+      <span class="kicker">Our story</span>
       <h2>{{ site.name }}</h2>
-      {{ site.about|linebreaks }}
-      {% if site.founded_year %}<p class="muted">Established {{ site.founded_year }}.</p>{% endif %}
+      {% if site.about %}<div class="prose">{{ site.about|linebreaks }}</div>
+      {% else %}<div class="coming" style="text-align:left;padding:34px">{% include "partials/icon.html" with name="book" %}<b style="color:var(--ink)">Our full story is being written.</b><p class="muted" style="margin:.4rem 0 0">The history of the association will be published here soon.</p></div>{% endif %}
+      {% if site.founded_year or site.registration_number %}<div class="pillars">
+        {% if site.founded_year %}<div class="pillar"><h4>Established</h4><p class="mono" style="font-size:1.4rem;color:var(--g-700)">{{ site.founded_year }}</p></div>{% endif %}
+        {% if site.registration_number %}<div class="pillar"><h4>Registration No.</h4><p class="mono">{{ site.registration_number }}</p></div>{% endif %}
+      </div>{% endif %}
+      {% if site.constitution %}<a class="btn btn-outline" href="{{ site.constitution.url }}" target="_blank">{% include "partials/icon.html" with name="download" size=18 %} Read our constitution</a>{% endif %}
     </div>
-    <div class="photo-stack"><img src="{% static 'img/gallery/tanpa-08.jpg' %}" alt="TANPA leaders on an official visit" loading="lazy"></div>
+    <div class="photo-wrap" data-reveal="right">
+      <div class="badge-ring" aria-hidden="true"><svg viewBox="0 0 200 200"><defs><path id="circ2" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs><text><textPath href="#circ2">Safe anaesthesia · Safer surgery · Safe anaesthesia · Safer surgery ·</textPath></text></svg><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""></div>
+      <div class="photo-frame"><img src="{% if site.about_image %}{{ site.about_image.url }}{% else %}{% static 'img/gallery/tanpa-08.jpg' %}{% endif %}" alt="TANPA leaders" loading="lazy"><div class="photo-caption"><small>TANPA</small>Serving patients across Tanzania</div></div>
+    </div>
   </div>
 </section>
-<section class="section soft">
+
+{% if site.mission or site.vision or site.objectives_list or site.values_list %}
+<section class="section dark grain">
   <div class="wrap">
-    <div class="grid-2" style="align-items:stretch">
-      <div class="card"><div class="icon-badge">{% include "partials/icon.html" with name="award" %}</div><h3>Our mission</h3><p>{{ site.mission }}</p></div>
-      <div class="card"><div class="icon-badge yellow">{% include "partials/icon.html" with name="heart" %}</div><h3>Our vision</h3><p>{{ site.vision }}</p></div>
+    <div class="head center" data-reveal><span class="kicker light">What drives us</span><h2>Purpose with a <span class="grad-text">pulse</span></h2></div>
+    {% if site.mission or site.vision %}
+    <div class="bento" style="grid-auto-rows:auto;margin-bottom:18px">
+      {% if site.mission %}<article class="tile t-b" data-reveal style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)"><div class="ic" style="background:rgba(255,214,10,.14);color:var(--y)">{% include "partials/icon.html" with name="award" %}</div><h3 style="color:#fff">Our mission</h3><p style="color:#b9cfc1;font-size:1.08rem">{{ site.mission }}</p></article>{% endif %}
+      {% if site.vision %}<article class="tile t-c" data-reveal style="--d:.1s;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)"><div class="ic" style="background:rgba(34,211,238,.14);color:var(--c)">{% include "partials/icon.html" with name="heart" %}</div><h3 style="color:#fff">Our vision</h3><p style="color:#b9cfc1;font-size:1.08rem">{{ site.vision }}</p></article>{% endif %}
     </div>
-    <div class="card" style="margin-top:24px">
-      <h3>Our objectives</h3>
-      <ul class="checklist">{% for o in site.objectives_list %}<li>{{ o }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if site.objectives_list or site.values_list %}
+    <div class="about-grid" style="gap:40px;align-items:start;margin-top:40px">
+      {% if site.objectives_list %}<div data-reveal><h3 style="font-size:1.6rem">Objectives</h3><ul class="ticks">{% for o in site.objectives_list %}<li>{{ o }}</li>{% endfor %}</ul></div>{% endif %}
+      {% if site.values_list %}<div data-reveal><h3 style="font-size:1.6rem">Core values</h3><ul class="ticks">{% for o in site.values_list %}<li>{{ o }}</li>{% endfor %}</ul></div>{% endif %}
     </div>
+    {% endif %}
   </div>
 </section>
+{% endif %}
+
 <section class="section" id="leadership">
   <div class="wrap">
-    <div class="section-head center"><span class="eyebrow">Leadership</span><h2>National executive committee</h2></div>
-    {% if leaders %}
-    <div class="grid-4">
-      {% for l in leaders %}
-      <div class="leader card">
-        {% if l.photo %}<img class="avatar" src="{{ l.photo.url }}" alt="{{ l.name }}" loading="lazy">{% else %}<div class="avatar placeholder">{{ l.name|slice:":1" }}</div>{% endif %}
-        <h3>{{ l.name }}</h3><p class="muted small" style="margin:0">{{ l.position }}</p>
-        {% if l.bio %}<p class="small" style="margin-top:.6rem">{{ l.bio|truncatewords:30 }}</p>{% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}<p class="center muted">Leadership details will be published soon.</p>{% endif %}
+    <div class="head center" data-reveal><span class="kicker">Leadership</span><h2>National executive <span class="grad-text-dark">committee</span></h2></div>
+    {% if leaders %}<div class="leaders">{% for l in leaders %}{% include "core/_leader.html" %}{% endfor %}</div>
+    {% else %}<div class="coming" data-reveal>{% include "partials/icon.html" with name="users" %}<b style="color:var(--ink)">Leadership profiles coming soon</b></div>{% endif %}
   </div>
 </section>
 {% endblock %}

@@ -2,18 +2,18 @@
 {% block title %}{{ post.title }} · {{ site.short_name }}{% endblock %}
 {% block description %}{{ post.summary|default:post.body|truncatewords:30 }}{% endblock %}
 {% block content %}
-{% include "core/page_head.html" with title=post.title crumb="News" %}
+{% include "core/page_head.html" with title=post.title subtitle=post.published_at|date:"l, j F Y" crumb="News" %}
 <section class="section">
   <div class="wrap">
     <article class="prose" style="margin:0 auto">
-      <p class="muted small">{{ post.published_at|date:"l, j F Y" }}</p>
-      {% if post.image %}<img src="{{ post.image.url }}" alt="">{% endif %}
+      {% if post.image %}<img src="{{ post.image.url }}" alt="" style="margin-top:0;box-shadow:var(--sh-2)">{% endif %}
+      {% if post.summary %}<p class="lede">{{ post.summary }}</p>{% endif %}
       {{ post.body|linebreaks }}
     </article>
     {% if more %}
-    <div style="max-width:760px;margin:48px auto 0">
-      <h3>More news</h3>
-      <ul>{% for p in more %}<li><a href="{{ p.get_absolute_url }}">{{ p.title }}</a> <span class="muted small">· {{ p.published_at|date:"j M Y" }}</span></li>{% endfor %}</ul>
+    <div style="max-width:var(--wrap);margin:80px auto 0">
+      <h3 style="font-size:1.8rem;margin-bottom:24px">Keep reading</h3>
+      <div class="news">{% for p in more %}{% include "core/_post_card.html" %}{% endfor %}</div>
     </div>
     {% endif %}
   </div>

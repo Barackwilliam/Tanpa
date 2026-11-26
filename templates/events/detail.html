@@ -2,51 +2,61 @@
 {% block title %}{{ event.title }} · TANPA{% endblock %}
 {% block description %}{{ event.summary|default:event.theme }}{% endblock %}
 {% block content %}
-<section class="hero" style="min-height:0">
-  <div class="hero-bg" style="background-image:url('{% if event.banner %}{{ event.banner.url }}{% else %}{% static 'img/gallery/tanpa-02.jpg' %}{% endif %}')"></div>
-  <div class="wrap" style="padding-top:64px;padding-bottom:72px;grid-template-columns:1fr">
+<section class="hero grain" style="min-height:78svh">
+  <div class="hero-photo" style="background-image:url('{% if event.banner %}{{ event.banner.url }}{% else %}{% static 'img/gallery/tanpa-02.jpg' %}{% endif %}')"></div>
+  <div class="hero-grid-bg"></div>
+  <div class="wrap" style="grid-template-columns:1fr">
     <div>
-      <span class="pill"><i></i> {{ event.get_kind_display }}</span>
-      <h1 style="max-width:22em;font-size:clamp(1.8rem,4vw,2.8rem)">{{ event.title }}</h1>
-      {% if event.theme %}<p class="lead"><b style="color:var(--yellow)">Theme:</b> {{ event.theme }}</p>{% endif %}
-      <p style="display:flex;gap:1.4rem;flex-wrap:wrap;color:#e3efe7;margin:1rem 0 0">
-        <span>{% include "partials/icon.html" with name="calendar" size=17 %} {{ event.start_date|date:"j M" }} – {{ event.end_date|date:"j M Y" }}</span>
-        <span>{% include "partials/icon.html" with name="pin" size=17 %} {{ event.venue }}, {{ event.city }}</span>
-        {% if event.cpd_points %}<span>{% include "partials/icon.html" with name="award" size=17 %} {{ event.cpd_points }} CPD points</span>{% endif %}
-      </p>
+      <div class="crumbs"><a href="{% url 'events:list' %}">Conferences</a><span>/</span><span>{{ event.get_kind_display }}</span></div>
+      <h1 style="font-size:clamp(2.2rem,5vw,4.4rem);max-width:16em">{{ event.title }}</h1>
+      {% if event.theme %}<p class="lead"><b style="color:var(--y)">Theme ·</b> {{ event.theme }}</p>{% endif %}
+      <div class="actions" style="gap:10px">
+        <span class="hero-tag" style="margin:0">{% include "partials/icon.html" with name="calendar" size=16 %} {{ event.start_date|date:"j" }}–{{ event.end_date|date:"j F Y" }}</span>
+        <span class="hero-tag" style="margin:0">{% include "partials/icon.html" with name="pin" size=16 %} {{ event.venue }}, {{ event.city }}</span>
+        {% if event.cpd_points %}<span class="hero-tag" style="margin:0">{% include "partials/icon.html" with name="award" size=16 %} {{ event.cpd_points }} CPD points</span>{% endif %}
+      </div>
     </div>
   </div>
 </section>
-<section class="section">
+<section class="section" style="padding-top:80px">
   <div class="wrap checkout">
-    <div class="prose">
-      {% if event.summary %}<p style="font-size:1.15rem;color:var(--ink)">{{ event.summary }}</p>{% endif %}
-      {{ event.description|linebreaks }}
+    <div>
+      {% if event.summary %}<p class="lede" data-reveal>{{ event.summary }}</p>{% endif %}
+      {% if event.description %}<div class="prose" data-reveal>{{ event.description|linebreaks }}</div>{% endif %}
+      {% if event.programme_list %}<div class="card" style="margin-top:28px" data-reveal><h3>Programme</h3><ul class="timeline">{% for item in event.programme_list %}<li>{{ item }}</li>{% endfor %}</ul></div>{% endif %}
+      {% if not event.summary and not event.description and not event.programme_list %}<div class="coming" style="text-align:left;padding:30px">{% include "partials/icon.html" with name="book" %}<b style="color:var(--ink)">Full programme coming soon</b><p class="muted" style="margin:.4rem 0 0">Details will be published by the secretariat.</p></div>{% endif %}
     </div>
-    <aside class="card summary">
-      {% if registration and registration.status == "confirmed" %}
-        <span class="badge confirmed">You are registered</span>
-        <h3 style="margin-top:.8rem">Badge No. {{ registration.badge_number }}</h3>
-        <p class="small muted">Download your badge and bring it (printed or on your phone) to the registration desk.</p>
-        <a class="btn btn-primary btn-block" href="{% url 'events:badge' event.slug %}">{% include "partials/icon.html" with name="download" size=17 %} Download badge</a>
-      {% elif registration and registration.status == "pending" %}
-        <span class="badge pending">Awaiting payment</span>
-        <div class="amount">TZS {{ registration.amount|intcomma }}</div>
-        <a class="btn btn-primary btn-block" href="{% url 'events:pay' event.slug %}">Complete payment</a>
-      {% else %}
-        <span class="muted small">Registration fee</span>
-        <div class="amount">{% if fee %}TZS {{ fee|intcomma }}{% else %}Free{% endif %}</div>
-        <dl style="margin-bottom:1.2rem">
-          <dt>Active members</dt><dd>{% if event.member_fee %}TZS {{ event.member_fee|intcomma }}{% else %}Free{% endif %}</dd>
-          {% if not event.members_only %}<dt>Non-members</dt><dd>{% if event.non_member_fee %}TZS {{ event.non_member_fee|intcomma }}{% else %}Free{% endif %}</dd>{% endif %}
-          {% if event.registration_deadline %}<dt>Deadline</dt><dd>{{ event.registration_deadline|date:"j M Y" }}</dd>{% endif %}
-        </dl>
-        {% if event.can_register %}
-          {% if user.is_authenticated %}<a class="btn btn-primary btn-block" href="{% url 'events:register' event.slug %}">Register now</a>
-          {% else %}<a class="btn btn-primary btn-block" href="{% url 'login' %}?next={% url 'events:register' event.slug %}">Sign in to register</a>
-          <p class="small muted center" style="margin:.7rem 0 0">No account? <a href="{% url 'members:register' %}">Create one</a></p>{% endif %}
-        {% elif event.is_full %}<p class="badge non_active">Fully booked</p>
-        {% else %}<p class="muted small" style="margin:0">Registration is closed.</p>{% endif %}
+    <aside class="summary">
+      <div class="top">
+        {% if registration and registration.status == "confirmed" %}
+          <span class="pill confirmed">You're registered</span>
+          <div class="amount" style="font-size:2rem;margin-top:14px">Badge {{ registration.badge_number }}</div>
+          <p style="margin:.6rem 0 1.2rem">Download your badge and show it at the registration desk.</p>
+          <a class="btn btn-yellow btn-block" href="{% url 'events:badge' event.slug %}">{% include "partials/icon.html" with name="download" size=18 %} Download badge</a>
+        {% elif registration and registration.status == "pending" %}
+          <span class="pill pending">Awaiting payment</span>
+          <div class="amount"><small>TZS</small>{{ registration.amount|intcomma }}</div>
+          <a class="btn btn-yellow btn-block" style="margin-top:18px" href="{% url 'events:pay' event.slug %}">Complete payment</a>
+        {% else %}
+          <span class="kicker light" style="margin:0">Registration fee</span>
+          <div class="amount">{% if not event.fees_announced %}<span style="font-size:1.6rem">To be announced</span>{% elif fee %}<small>TZS</small>{{ fee|intcomma }}{% else %}Free{% endif %}</div>
+          {% if event.is_upcoming %}<div class="countdown" data-countdown="{{ event.start_date|date:'c' }}T08:00:00+03:00" style="margin-top:18px"><div><b>0</b><span>Days</span></div><div><b>00</b><span>Hrs</span></div><div><b>00</b><span>Min</span></div><div><b>00</b><span>Sec</span></div></div>{% endif %}
+          {% if event.can_register %}
+            {% if user.is_authenticated %}<a class="btn btn-yellow btn-block" href="{% url 'events:register' event.slug %}">Register now {% include "partials/icon.html" with name="arrow" size=18 %}</a>
+            {% else %}<a class="btn btn-yellow btn-block" href="{% url 'login' %}?next={% url 'events:register' event.slug %}">Log in to register</a>
+            <p class="small center" style="margin:.8rem 0 0">No account? <a style="color:var(--y)" href="{% url 'members:register' %}">Create one</a></p>{% endif %}
+          {% elif event.is_full %}<p style="margin:0"><span class="pill non_active">Fully booked</span></p>
+          {% elif event.is_upcoming %}<p style="margin:0">Registration will open soon.</p>
+          {% else %}<p style="margin:0">This event has ended. <a style="color:var(--y)" href="{% url 'core:gallery' %}">See the photos →</a></p>{% endif %}
+        {% endif %}
+      </div>
+      {% if event.fees_announced %}
+      <dl>
+        <dt>Active members</dt><dd>{% if event.member_fee %}TZS {{ event.member_fee|intcomma }}{% else %}Free{% endif %}</dd>
+        {% if not event.members_only and event.non_member_fee is not None %}<dt>Non-members</dt><dd>{% if event.non_member_fee %}TZS {{ event.non_member_fee|intcomma }}{% else %}Free{% endif %}</dd>{% endif %}
+        {% if event.registration_deadline %}<dt>Deadline</dt><dd>{{ event.registration_deadline|date:"j M Y" }}</dd>{% endif %}
+        {% if event.capacity %}<dt>Seats</dt><dd>{{ event.capacity }}</dd>{% endif %}
+      </dl>
       {% endif %}
     </aside>
   </div>

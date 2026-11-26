@@ -1,45 +1,72 @@
 {% extends "base.html" %}{% load humanize %}
 {% block title %}Join TANPA{% endblock %}
 {% block content %}
-{% include "core/page_head.html" with title="Become a TANPA member" subtitle="Create your account. After registering you will pay the entry fee and annual subscription to activate your membership." crumb="Join" %}
-<section class="section">
-  <div class="wrap">
-    <form class="card form-card" method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
-      {% if form.non_field_errors %}<div class="non-field">{{ form.non_field_errors|join:" " }}</div>{% endif %}
-      {% if form.errors %}<div class="non-field">Please correct the highlighted fields below.</div>{% endif %}
-      <div class="form-grid">
-        <div class="form-section full">1 · Account</div>
-        {% include "partials/field.html" with field=form.email class="full" %}
-        {% include "partials/field.html" with field=form.password1 %}
-        {% include "partials/field.html" with field=form.password2 %}
+{% include "core/page_head.html" with title="Become a member" subtitle="Four quick steps. Your account is created at the end, then you'll pay to activate your membership." crumb="Join" %}
+<section class="section" style="padding-top:70px;background:var(--mist)">
+  <form class="wizard card" method="post" enctype="multipart/form-data" novalidate data-wizard style="padding:40px">
+    {% csrf_token %}
+    <div class="steps-bar" role="tablist">
+      <button type="button"><i></i><span>STEP 01</span>Account</button>
+      <button type="button"><i></i><span>STEP 02</span>Personal</button>
+      <button type="button"><i></i><span>STEP 03</span>Professional</button>
+      <button type="button"><i></i><span>STEP 04</span>Photo</button>
+    </div>
+    {% if form.non_field_errors %}<div class="non-field">{{ form.non_field_errors|join:" " }}</div>{% endif %}
 
-        <div class="form-section full">2 · Personal details</div>
+    <div class="wstep">
+      <h2>Create your login</h2><p class="muted">You'll sign in with this email (or later, your membership number).</p>
+      <div class="form-grid">
+        {% include "partials/field.html" with field=form.email class="full" %}
+        <div>{% include "partials/field.html" with field=form.password1 %}<div class="strength" data-strength="{{ form.password1.id_for_label }}"><i></i></div></div>
+        {% include "partials/field.html" with field=form.password2 %}
+      </div>
+      <div class="wnav"><a class="small" href="{% url 'login' %}">Already registered? Log in</a><button type="button" class="btn btn-primary" data-next>Continue {% include "partials/icon.html" with name="arrow" size=18 %}</button></div>
+    </div>
+
+    <div class="wstep">
+      <h2>About you</h2><p class="muted">Use your name exactly as it should appear on your ID card.</p>
+      <div class="form-grid">
         {% include "partials/field.html" with field=form.title %}
+        {% include "partials/field.html" with field=form.gender %}
         {% include "partials/field.html" with field=form.first_name %}
         {% include "partials/field.html" with field=form.middle_name %}
         {% include "partials/field.html" with field=form.last_name %}
-        {% include "partials/field.html" with field=form.gender %}
         {% include "partials/field.html" with field=form.date_of_birth %}
         {% include "partials/field.html" with field=form.phone %}
         {% include "partials/field.html" with field=form.national_id %}
+      </div>
+      <div class="wnav"><button type="button" class="btn btn-outline" data-prev>Back</button><button type="button" class="btn btn-primary" data-next>Continue {% include "partials/icon.html" with name="arrow" size=18 %}</button></div>
+    </div>
 
-        <div class="form-section full">3 · Professional details</div>
+    <div class="wstep">
+      <h2>Your practice</h2><p class="muted">Where and how you work.</p>
+      <div class="form-grid">
         {% include "partials/field.html" with field=form.cadre %}
         {% include "partials/field.html" with field=form.professional_reg_no %}
         {% include "partials/field.html" with field=form.workplace class="full" %}
         {% include "partials/field.html" with field=form.region %}
         {% include "partials/field.html" with field=form.district %}
+      </div>
+      <div class="wnav"><button type="button" class="btn btn-outline" data-prev>Back</button><button type="button" class="btn btn-primary" data-next>Continue {% include "partials/icon.html" with name="arrow" size=18 %}</button></div>
+    </div>
 
-        <div class="form-section full">4 · Passport photo</div>
-        {% include "partials/field.html" with field=form.photo class="full" %}
-        {% include "partials/field.html" with field=form.agree class="full" %}
+    <div class="wstep">
+      <h2>Passport photo</h2><p class="muted">A clear, front-facing photo on a plain background. It goes on your ID card.</p>
+      <label class="uploader {% if form.photo.errors %}has-error{% endif %}" data-uploader>
+        <span class="pv">{% include "partials/icon.html" with name="image" size=30 %}</span>
+        <span><b>Tap to choose a photo</b><span class="muted small" data-name>JPG or PNG, up to 4 MB</span></span>
+        {{ form.photo }}
+      </label>
+      {% if form.photo.errors %}<div class="field"><div class="errors">{{ form.photo.errors|join:" " }}</div></div>{% endif %}
+      <div style="margin-top:18px">{% include "partials/field.html" with field=form.agree %}</div>
+      <div class="wnav">
+        <button type="button" class="btn btn-outline" data-prev>Back</button>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          {% if fees %}<span class="small muted">Next: pay <b style="color:var(--ink)">TZS {{ fees.joining_total|intcomma }}</b></span>{% endif %}
+          <button class="btn btn-yellow btn-lg" data-magnetic>Create my account {% include "partials/icon.html" with name="check" size=18 %}</button>
+        </div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:24px;padding-top:20px;border-top:1px solid var(--line)">
-        <p class="small muted" style="margin:0">Next step: pay <b>TZS {{ fees.entry_fee|add:fees.annual_fee|intcomma }}</b> (entry fee + {{ fees.year }} subscription).</p>
-        <button class="btn btn-primary">Create my account</button>
-      </div>
-      <p class="small muted" style="margin:1rem 0 0">Already registered? <a href="{% url 'login' %}">Sign in</a>.</p>
-    </form>
-  </div>
+    </div>
+  </form>
 </section>
 {% endblock %}

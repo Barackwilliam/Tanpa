@@ -1,16 +1,11 @@
 {% extends "base.html" %}
 {% block title %}My profile · TANPA{% endblock %}
 {% block content %}
-{% include "core/page_head.html" with title="My profile" subtitle="Keep your details up to date. Your name and photo appear on your ID card." crumb="Portal" %}
-<section class="section">
-  <div class="wrap">
-    <form class="card form-card" method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
-      {% include "partials/form.html" %}
-      <div style="display:flex;gap:.6rem;margin-top:22px">
-        <button class="btn btn-primary">Save changes</button>
-        <a class="btn btn-outline" href="{% url 'members:dashboard' %}">Cancel</a>
-      </div>
-    </form>
-  </div>
+{% include "core/page_head.html" with title="My profile" subtitle="Keep your details current. Your name and photo appear on your ID card." crumb="Portal" %}
+<section class="section" style="background:var(--mist);padding-top:70px">
+  <form class="card wizard" method="post" enctype="multipart/form-data" novalidate style="padding:40px">{% csrf_token %}
+    {% include "partials/form.html" %}
+    <div class="wnav"><a class="btn btn-outline" href="{% url 'members:dashboard' %}">Cancel</a><button class="btn btn-primary btn-lg">Save changes</button></div>
+  </form>
 </section>
 {% endblock %}

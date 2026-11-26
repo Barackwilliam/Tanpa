@@ -1,0 +1,126 @@
+{% extends 'admin/base.html' %}
+{% load i18n humanize static %}
+{% block title %}Dashboard | {{ site_title }}{% endblock %}
+{% block branding %}{% include "unfold/helpers/site_branding.html" %}{% endblock %}
+{% block content %}
+<div class="tp">
+  <section class="tp-hero">
+    <img class="logo" src="{% static 'img/tanpa-logo.png' %}" alt="">
+    <svg class="ecg" viewBox="0 0 1200 46" preserveAspectRatio="none"><path d="M0 30 H260 l14 -18 l12 30 l10 -40 l12 40 l10 -12 H620 l14 -18 l12 30 l10 -40 l12 40 l10 -12 H1200"/></svg>
+    <form class="tp-year" method="get"><select name="year" onchange="this.form.submit()">{% for y in years %}<option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>{% endfor %}</select></form>
+    <small><span class="ms" style="font-size:16px">monitor_heart</span> TANPA control centre · {% now "l, j F Y" %}</small>
+    <h1>Karibu, {{ request.user.first_name|default:request.user.get_username }} 👋</h1>
+    <p>Here is how the association is doing in {{ year }}: members, money collected and everything waiting for your action.</p>
+    <div class="acts">
+      <a class="tp-btn y" href="{% url 'dashboard:payments' %}"><span class="ms">price_check</span> Confirm payments{% if awaiting_count %} ({{ awaiting_count }}){% endif %}</a>
+      <a class="tp-btn glass" href="{% url 'dashboard:members' %}"><span class="ms">groups</span> Members database</a>
+      <a class="tp-btn glass" href="{% url 'admin:events_event_add' %}"><span class="ms">add</span> New event</a>
+      <a class="tp-btn glass" href="{% url 'admin:core_post_add' %}"><span class="ms">edit_note</span> Write news</a>
+      <a class="tp-btn glass" href="/" target="_blank"><span class="ms">open_in_new</span> View website</a>
+    </div>
+  </section>
+
+  {% if setup.done < setup.total %}
+  <section class="tp-card tp-setup">
+    <h3><span class="t"><span class="ms">rocket_launch</span> Launch checklist: {{ setup.done }} of {{ setup.total }} done</span></h3>
+    <div class="tp-progress"><i style="width:{{ setup.pct }}%"></i></div>
+    <ul>
+      {% for label, ok, url in setup.items %}
+      <li class="{% if ok %}done{% else %}todo{% endif %}"><a href="{% url url %}"><span class="ms">{% if ok %}check_circle{% else %}radio_button_unchecked{% endif %}</span>{{ label }}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section class="tp-kpis">
+    <a class="tp-kpi g" href="{% url 'dashboard:members' %}?status=active&year={{ year }}">
+      <div class="ic"><span class="ms">verified</span></div><span class="l">Active members {{ year }}</span><b>{{ active|intcomma }}</b>
+      <div class="sub">{{ active_rate }}% of registered members</div>
+    </a>
+    <a class="tp-kpi r" href="{% url 'dashboard:members' %}?status=non_active&year={{ year }}">
+      <div class="ic"><span class="ms">person_alert</span></div><span class="l">Non-active</span><b>{{ non_active|intcomma }}</b>
+      <div class="sub">{{ year }} subscription not paid</div>
+    </a>
+    <a class="tp-kpi a" href="{% url 'dashboard:members' %}?status=pending">
+      <div class="ic"><span class="ms">hourglass_top</span></div><span class="l">Pending sign-ups</span><b>{{ pending|intcomma }}</b>
+      <div class="sub">Registered, entry fee not paid</div>
+    </a>
+    <a class="tp-kpi n" href="{% url 'dashboard:payments' %}?status=paid">
+      <div class="ic"><span class="ms">account_balance_wallet</span></div><span class="l">Collected {{ year }}</span><b class="money">TZS {{ revenue_total|intcomma }}</b>
+      <div class="sub">{% if revenue_delta is not None %}<span class="{% if revenue_delta >= 0 %}up{% else %}down{% endif %}">{% if revenue_delta >= 0 %}▲{% else %}▼{% endif %} {{ revenue_delta }}%</span> vs {{ year|add:"-1" }}{% else %}{{ total|intcomma }} members in total{% endif %}</div>
+    </a>
+  </section>
+
+  <section class="tp-grid">
+    <div class="tp-card">
+      <h3><span class="t"><span class="ms">bar_chart</span> Money collected per month · {{ year }}</span></h3>
+      <div class="tp-bars">
+        {% for m in monthly %}<div class="tp-bar {% if not m.total %}zero{% endif %}"><em>TZS {{ m.total|intcomma }}</em><i style="height:{% if m.total %}{{ m.pct }}{% else %}2{% endif %}%;animation-delay:{{ forloop.counter0 }}0ms"></i><span>{{ m.label }}</span></div>{% endfor %}
+      </div>
+    </div>
+    <div class="tp-card">
+      <h3><span class="t"><span class="ms">donut_large</span> Membership status</span></h3>
+      <div class="tp-donut">
+        <div class="center">
+          <svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="42"/>{% for d in donut %}{% if d.value %}<circle class="seg {{ d.css }}" cx="50" cy="50" r="42" stroke-dasharray="{{ d.dash }}" stroke-dashoffset="{{ d.offset }}"/>{% endif %}{% endfor %}</svg>
+          <div><span><b>{{ active_rate }}%</b><small>ACTIVE</small></span></div>
+        </div>
+        <div class="tp-legend">{% for d in donut %}<div><i class="{{ d.css }}"></i>{{ d.label }}<b>{{ d.value|intcomma }}</b></div>{% endfor %}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tp-grid">
+    <div class="tp-col">
+      <div class="tp-card">
+        <h3><span class="t"><span class="ms">pending_actions</span> Waiting for confirmation</span><a href="{% url 'dashboard:payments' %}">View all ({{ awaiting_count }}) →</a></h3>
+        {% if awaiting %}<div class="tp-list">
+          {% for p in awaiting %}
+          <div class="tp-row">
+            <div class="tp-av">{{ p.user.member.first_name|slice:":1" }}{{ p.user.member.last_name|slice:":1" }}</div>
+            <div class="who"><b>{{ p.user.member.full_name|default:p.user.email }}</b><span>{{ p.description }} · {{ p.provider }} <span class="tp-mono">{{ p.external_reference }}</span>{% if p.proof %} · <a href="{{ p.proof.url }}" target="_blank">slip</a>{% endif %}</span></div>
+            <div class="tp-amt">TZS {{ p.amount|intcomma }}</div>
+            {% include "dashboard/_payment_actions.html" %}
+          </div>
+          {% endfor %}
+        </div>{% else %}<div class="tp-empty"><span class="ms">task_alt</span>All caught up. No payments waiting.</div>{% endif %}
+      </div>
+      <div class="tp-card">
+        <h3><span class="t"><span class="ms">person_add</span> Newest members</span><a href="{% url 'dashboard:members' %}">Database →</a></h3>
+        {% if recent_members %}<div class="tp-list">
+          {% for m in recent_members %}
+          <a class="tp-row" href="{% url 'dashboard:member' m.pk %}">
+            {% if m.photo %}<img class="tp-av" src="{{ m.photo.url }}" alt="">{% else %}<div class="tp-av">{{ m.first_name|slice:":1" }}{{ m.last_name|slice:":1" }}</div>{% endif %}
+            <div class="who"><b>{{ m.full_name }}</b><span>{{ m.cadre_name|default:"—" }} · {{ m.region }}</span></div>
+            <span class="tp-pill {{ m.status }}">{{ m.status_label }}</span>
+          </a>
+          {% endfor %}
+        </div>{% else %}<div class="tp-empty"><span class="ms">group_add</span>No members yet. Share the registration link: <b>/join/</b></div>{% endif %}
+      </div>
+    </div>
+    <div class="tp-col">
+      <div class="tp-card">
+        <h3><span class="t"><span class="ms">event</span> Upcoming events</span><a href="{% url 'dashboard:events' %}">Check-in →</a></h3>
+        {% for e in events %}
+        <a class="tp-event" href="{% url 'dashboard:event_registrations' e.pk %}">
+          <div class="tp-date"><b>{{ e.start_date|date:"j" }}</b><span>{{ e.start_date|date:"M" }}</span></div>
+          <div class="who" style="flex:1;min-width:0"><b style="display:block;font-size:13px;color:var(--tp-ink)">{{ e.title|truncatechars:48 }}</b><span style="font-size:12px;color:var(--tp-mute)">{{ e.city }} · {{ e.confirmed }} confirmed{% if e.capacity %} / {{ e.capacity }}{% endif %}</span></div>
+        </a>
+        {% empty %}<div class="tp-empty"><span class="ms">event_busy</span>No upcoming events. <a href="{% url 'admin:events_event_add' %}">Create one</a></div>{% endfor %}
+      </div>
+      <div class="tp-card">
+        <h3><span class="t"><span class="ms">map</span> Active members by region</span></h3>
+        {% for r in regions %}<div class="tp-region"><div><span>{{ r.region }}</span><b>{{ r.n }}</b></div><div class="tp-track"><i style="width:{{ r.pct }}%"></i></div></div>
+        {% empty %}<div class="tp-empty"><span class="ms">public</span>No active members yet.</div>{% endfor %}
+      </div>
+      <div class="tp-card">
+        <h3><span class="t"><span class="ms">payments</span> Collections by type</span></h3>
+        {% for r in revenue %}<div class="tp-row"><div class="who"><b>{{ r.label }}</b><span>{{ r.n }} payment{{ r.n|pluralize }}</span></div><div class="tp-amt">TZS {{ r.total|intcomma }}</div></div>
+        {% empty %}<div class="tp-empty"><span class="ms">savings</span>No payments in {{ year }} yet.</div>{% endfor %}
+        {% if fees %}<p style="margin:12px 0 0;font-size:12px;color:var(--tp-mute)">Fees {{ year }}: entry TZS {{ fees.entry_fee|intcomma }} · annual TZS {{ fees.annual_fee|intcomma }}</p>{% endif %}
+      </div>
+      {% if unread_messages %}<a class="tp-card" href="{% url 'admin:core_contactmessage_changelist' %}?is_handled__exact=0" style="display:flex;align-items:center;gap:12px;color:var(--tp-ink)"><span class="ms" style="color:var(--tp-g)">mark_email_unread</span><b>{{ unread_messages }}</b> new contact message{{ unread_messages|pluralize }} →</a>{% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

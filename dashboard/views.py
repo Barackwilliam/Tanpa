@@ -1,10 +1,11 @@
 import csv
 from functools import wraps
 
-from django.contrib import messages
+from django.contrib import admin, messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import Count, Q, Sum
+from django.db.models.functions import TruncMonth
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -14,7 +15,7 @@ from django.views.decorators.http import require_POST
 from core.models import ContactMessage
 from events.models import Event, EventRegistration
 from members.models import Cadre, Member, REGION_CHOICES
-from payments.models import Payment
+from payments.models import FeeSchedule, Payment
 
 from .forms import RecordPaymentForm
 
@@ -35,36 +36,120 @@ def _year(request):
         return timezone.localdate().year
 
 
+def _admin_ctx(request, **extra):
+    """Context so our staff pages render inside the Unfold admin shell (sidebar, header)."""
+    return {**admin.site.each_context(request), **extra}
+
+
+def awaiting_badge(request):
+    n = Payment.objects.filter(status=Payment.Status.AWAITING_CONFIRMATION).count()
+    return str(n) if n else ""
+
+
+def unread_badge(request):
+    n = ContactMessage.objects.filter(is_handled=False).count()
+    return str(n) if n else ""
+
+
+def _monthly_collections(year):
+    rows = (
+        Payment.objects.filter(status=Payment.Status.PAID, paid_at__year=year)
+        .annotate(m=TruncMonth("paid_at"))
+        .values("m")
+        .annotate(total=Sum("amount"))
+    )
+    by_month = {r["m"].month: r["total"] for r in rows if r["m"]}
+    peak = max(by_month.values(), default=0) or 1
+    names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return [
+        {"label": names[i - 1], "total": by_month.get(i, 0), "pct": round(by_month.get(i, 0) * 100 / peak)}
+        for i in range(1, 13)
+    ]
+
+
+def _donut(parts):
+    """parts: [(label, value, css_class)] -> list with SVG dash offsets for a ring chart."""
+    total = sum(v for _, v, _ in parts) or 1
+    circ = 2 * 3.14159265 * 42
+    offset, out = 0.0, []
+    for label, value, css in parts:
+        length = circ * value / total
+        out.append({"label": label, "value": value, "css": css, "dash": f"{length:.2f} {circ - length:.2f}",
+                    "offset": f"{-offset:.2f}", "pct": round(value * 100 / total)})
+        offset += length
+    return out
+
+
+def dashboard_stats(year):
+    members = Member.objects.all()
+    active = members.active(year).count()
+    non_active = members.non_active(year).count()
+    pending = members.pending().count()
+    paid = Payment.objects.filter(status=Payment.Status.PAID, paid_at__year=year)
+    prev = Payment.objects.filter(status=Payment.Status.PAID, paid_at__year=year - 1).aggregate(t=Sum("amount"))["t"] or 0
+    revenue_total = paid.aggregate(t=Sum("amount"))["t"] or 0
+    labels = dict(Payment.Purpose.choices)
+    regions = list(Member.objects.active(year).values("region").annotate(n=Count("id")).order_by("-n")[:8])
+    max_region = max([r["n"] for r in regions], default=1)
+    for r in regions:
+        r["pct"] = round(r["n"] * 100 / max_region)
+    today = timezone.localdate()
+    return {
+        "year": year,
+        "years": list(range(today.year + 1, today.year - 6, -1)),
+        "total": members.filter(entry_fee_paid=True).count(),
+        "active": active,
+        "non_active": non_active,
+        "pending": pending,
+        "active_rate": round(active * 100 / (active + non_active)) if (active + non_active) else 0,
+        "revenue_total": revenue_total,
+        "revenue_delta": round((revenue_total - prev) * 100 / prev) if prev else None,
+        "revenue": [
+            {"label": labels.get(r["purpose"], r["purpose"]), **r}
+            for r in paid.values("purpose").annotate(total=Sum("amount"), n=Count("id")).order_by("-total")
+        ],
+        "monthly": _monthly_collections(year),
+        "donut": _donut([("Active", active, "ok"), ("Non-active", non_active, "bad"), ("Pending", pending, "warn")]),
+        "awaiting": Payment.objects.filter(status=Payment.Status.AWAITING_CONFIRMATION)
+        .select_related("user__member", "event_registration__event")[:6],
+        "awaiting_count": Payment.objects.filter(status=Payment.Status.AWAITING_CONFIRMATION).count(),
+        "recent_members": Member.objects.select_related("cadre").order_by("-created")[:6],
+        "regions": regions,
+        "events": Event.objects.filter(end_date__gte=today).annotate(
+            confirmed=Count("registrations", filter=Q(registrations__status=EventRegistration.Status.CONFIRMED))
+        ).order_by("start_date")[:4],
+        "unread_messages": ContactMessage.objects.filter(is_handled=False).count(),
+        "fees": FeeSchedule.objects.filter(year=year).first(),
+        "setup": _setup_checklist(),
+    }
+
+
+def _setup_checklist():
+    """What TANPA still has to fill in before launch."""
+    from core.models import Leader, SiteSettings
+
+    s = SiteSettings.load()
+    items = [
+        ("About text, mission & vision", bool(s.about and s.mission and s.vision), "admin:core_sitesettings_changelist"),
+        ("Contacts (phone & email)", bool(s.phone and s.email), "admin:core_sitesettings_changelist"),
+        ("Membership fees for this year", FeeSchedule.objects.filter(year=timezone.localdate().year).exists(),
+         "admin:payments_feeschedule_changelist"),
+        ("Cadres list", Cadre.objects.exists(), "admin:members_cadre_changelist"),
+        ("Leaders", Leader.objects.exists(), "admin:core_leader_changelist"),
+        ("Payment details (bank / Lipa number)", s.has_manual_payment_details, "admin:core_sitesettings_changelist"),
+    ]
+    done = sum(1 for _, ok, _ in items if ok)
+    return {"items": items, "done": done, "total": len(items), "pct": round(done * 100 / len(items))}
+
+
+def admin_dashboard_callback(request, context):
+    context.update(dashboard_stats(_year(request)))
+    return context
+
+
 @staff_required
 def home(request):
-    year = _year(request)
-    members = Member.objects.all()
-    paid = Payment.objects.filter(status=Payment.Status.PAID, paid_at__year=year)
-    revenue = paid.values("purpose").annotate(total=Sum("amount"), n=Count("id"))
-    labels = dict(Payment.Purpose.choices)
-    regions = (
-        Member.objects.active(year).values("region").annotate(n=Count("id")).order_by("-n")[:10]
-    )
-    max_region = max([r["n"] for r in regions], default=1)
-    return render(request, "dashboard/home.html", {
-        "year": year,
-        "years": range(timezone.localdate().year + 1, timezone.localdate().year - 6, -1),
-        "total": members.filter(entry_fee_paid=True).count(),
-        "active": members.active(year).count(),
-        "non_active": members.non_active(year).count(),
-        "pending": members.pending().count(),
-        "revenue_total": paid.aggregate(t=Sum("amount"))["t"] or 0,
-        "revenue": [{"label": labels.get(r["purpose"], r["purpose"]), **r} for r in revenue],
-        "awaiting": Payment.objects.filter(status=Payment.Status.AWAITING_CONFIRMATION).select_related("user__member")[:10],
-        "awaiting_count": Payment.objects.filter(status=Payment.Status.AWAITING_CONFIRMATION).count(),
-        "recent_members": Member.objects.order_by("-created")[:8],
-        "regions": regions,
-        "max_region": max_region,
-        "events": Event.objects.filter(end_date__gte=timezone.localdate()).annotate(
-            confirmed=Count("registrations", filter=Q(registrations__status=EventRegistration.Status.CONFIRMED))
-        ).order_by("start_date")[:5],
-        "unread_messages": ContactMessage.objects.filter(is_handled=False).count(),
-    })
+    return redirect("admin:index")
 
 
 def _filtered_members(request, year):
@@ -88,7 +173,7 @@ def _filtered_members(request, year):
     if request.GET.get("region"):
         qs = qs.filter(region=request.GET["region"])
     if request.GET.get("cadre"):
-        qs = qs.filter(cadre=request.GET["cadre"])
+        qs = qs.filter(cadre_id=request.GET["cadre"])
     return qs.order_by("membership_number", "last_name")
 
 
@@ -118,11 +203,13 @@ def members(request):
         rows.append((m, st))
     params = request.GET.copy()
     params.pop("page", None)
-    return render(request, "dashboard/members.html", {
+    return render(request, "dashboard/members.html", _admin_ctx(request, title="Members database", **{
         "page": page, "rows": rows, "year": year, "count": qs.count(),
-        "regions": REGION_CHOICES, "cadres": Cadre.choices, "f": request.GET, "qs": params.urlencode(),
+        "status_tabs": [("", "All"), ("active", "Active"), ("non_active", "Non-active"), ("pending", "Pending"),
+                        ("suspended", "Suspended")],
+        "regions": REGION_CHOICES, "cadres": Cadre.objects.all(), "f": request.GET, "qs": params.urlencode(),
         "years": range(timezone.localdate().year + 1, timezone.localdate().year - 6, -1),
-    })
+    }))
 
 
 def _members_csv(qs, year):
@@ -150,7 +237,7 @@ def _members_csv(qs, year):
             st = "Active" if year in years else "Non-active"
         w.writerow([
             m.membership_number or "", m.title, m.first_name, m.middle_name, m.last_name,
-            m.get_gender_display(), m.phone, m.user.email, m.get_cadre_display(), m.professional_reg_no,
+            m.get_gender_display(), m.phone, m.user.email, m.cadre_name, m.professional_reg_no,
             m.workplace, m.region, m.district, m.joined_on or "", st,
             ", ".join(str(y) for y in sorted(years, reverse=True)),
         ])
@@ -170,13 +257,13 @@ def member_detail(request, pk):
         p.mark_paid(by=request.user)
         messages.success(request, f"Payment {p.reference} recorded for {member.full_name}.")
         return redirect("dashboard:member", pk=pk)
-    return render(request, "dashboard/member_detail.html", {
+    return render(request, "dashboard/member_detail.html", _admin_ctx(request, title=member.full_name, **{
         "m": member,
         "form": form,
         "payments": member.user.payments.select_related("event_registration__event"),
         "registrations": member.user.event_registrations.select_related("event"),
         "paid_years": member.paid_years(),
-    })
+    }))
 
 
 @staff_required
@@ -220,10 +307,10 @@ def payments(request):
     page = Paginator(qs, 30).get_page(request.GET.get("page"))
     params = request.GET.copy()
     params.pop("page", None)
-    return render(request, "dashboard/payments.html", {
+    return render(request, "dashboard/payments.html", _admin_ctx(request, title="Confirm payments", **{
         "page": page, "status": status, "statuses": Payment.Status.choices,
         "purposes": Payment.Purpose.choices, "f": request.GET, "qs": params.urlencode(),
-    })
+    }))
 
 
 @staff_required
@@ -250,7 +337,7 @@ def events(request):
         pending=Count("registrations", filter=Q(registrations__status=EventRegistration.Status.PENDING)),
         checked_in=Count("registrations", filter=Q(registrations__checked_in_at__isnull=False)),
     ).order_by("-start_date")
-    return render(request, "dashboard/events.html", {"events": all_events})
+    return render(request, "dashboard/events.html", _admin_ctx(request, title="Events & check-in", events=all_events))
 
 
 @staff_required
@@ -276,7 +363,7 @@ def event_registrations(request, pk):
                         r.created.date(), r.checked_in_at or ""])
         return resp
     params = request.GET.copy()
-    return render(request, "dashboard/event_registrations.html", {
+    return render(request, "dashboard/event_registrations.html", _admin_ctx(request, title=event.title, **{
         "event": event, "regs": qs, "f": request.GET, "qs": params.urlencode(),
         "statuses": EventRegistration.Status.choices,
-    })
+    }))

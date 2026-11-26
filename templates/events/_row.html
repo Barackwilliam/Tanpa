@@ -1,0 +1,9 @@
+{% load humanize %}<a class="ev" href="{{ e.get_absolute_url }}" data-reveal>
+  <div class="d"><b>{{ e.start_date|date:"j" }}</b><span>{{ e.start_date|date:"M Y" }}</span></div>
+  <div>
+    <span class="kicker" style="margin:0">{{ e.get_kind_display }}</span>
+    <h3>{{ e.title }}</h3>
+    <div class="meta"><span>{% include "partials/icon.html" with name="pin" size=15 %} {{ e.venue }}, {{ e.city }}</span><span>{% include "partials/icon.html" with name="calendar" size=15 %} {{ e.start_date|date:"j" }}–{{ e.end_date|date:"j M Y" }}</span>{% if e.fees_announced and e.is_upcoming %}<span>{% include "partials/icon.html" with name="receipt" size=15 %} Members {% if e.member_fee %}TZS {{ e.member_fee|intcomma }}{% else %}free{% endif %}</span>{% endif %}</div>
+  </div>
+  <span class="btn {% if e.can_register %}btn-yellow{% else %}btn-outline{% endif %} btn-sm">{% if e.can_register %}Register{% else %}Details{% endif %} {% include "partials/icon.html" with name="arrow" size=16 %}</span>
+</a>

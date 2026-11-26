@@ -1,20 +1,19 @@
-{% extends "dashboard/base.html" %}
-{% block dtitle %}Events{% endblock %}
+{% extends "dashboard/_layout.html" %}
 {% block dash %}
-<div class="dash-head"><h1>Events &amp; registrations</h1><a class="btn btn-primary btn-sm" href="{% url 'admin:events_event_add' %}">+ New event</a></div>
-<div class="table-wrap">
-  <table class="table">
+<div class="tp-head"><div><h1>Events &amp; check-in</h1><p>Attendee lists, exports and check-in at the registration desk.</p></div><a class="tp-btn g" href="{% url 'admin:events_event_add' %}"><span class="ms">add</span> New event</a></div>
+<div class="tp-table-wrap">
+  <table class="tp-table">
     <thead><tr><th>Event</th><th>Dates</th><th>Confirmed</th><th>Awaiting payment</th><th>Checked in</th><th></th></tr></thead>
     {% for e in events %}
     <tr>
-      <td><b>{{ e.title }}</b><br><span class="small muted">{{ e.city }}{% if not e.is_published %} · unpublished{% endif %}</span></td>
-      <td class="small">{{ e.start_date|date:"j M" }} – {{ e.end_date|date:"j M Y" }}</td>
-      <td><b>{{ e.confirmed }}</b>{% if e.capacity %}/{{ e.capacity }}{% endif %}</td>
+      <td><div style="display:flex;gap:12px;align-items:center"><div class="tp-date"><b>{{ e.start_date|date:"j" }}</b><span>{{ e.start_date|date:"M" }}</span></div><div><b>{{ e.title }}</b><div class="muted">{{ e.venue }}, {{ e.city }}{% if not e.is_published %} · unpublished{% endif %}</div></div></div></td>
+      <td class="muted">{{ e.start_date|date:"j M" }} – {{ e.end_date|date:"j M Y" }}</td>
+      <td><b>{{ e.confirmed }}</b>{% if e.capacity %} / {{ e.capacity }}{% endif %}</td>
       <td>{{ e.pending }}</td>
       <td>{{ e.checked_in }}</td>
-      <td style="white-space:nowrap"><a class="btn btn-outline btn-sm" href="{% url 'dashboard:event_registrations' e.pk %}">Registrations</a> <a class="btn btn-sm" href="{% url 'admin:events_event_change' e.pk %}">Edit</a></td>
+      <td style="white-space:nowrap"><a class="tp-btn g sm" href="{% url 'dashboard:event_registrations' e.pk %}"><span class="ms">list</span>Attendees</a> <a class="tp-btn o sm" href="{% url 'admin:events_event_change' e.pk %}"><span class="ms">edit</span></a></td>
     </tr>
-    {% empty %}<tr><td colspan="6" class="empty">No events yet.</td></tr>{% endfor %}
+    {% empty %}<tr><td colspan="6"><div class="tp-empty"><span class="ms">event_busy</span>No events yet.</div></td></tr>{% endfor %}
   </table>
 </div>
 {% endblock %}

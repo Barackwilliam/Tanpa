@@ -14,15 +14,18 @@ REGIONS = [
 REGION_CHOICES = [(r, r) for r in REGIONS] + [("Outside Tanzania", "Outside Tanzania")]
 
 
-class Cadre(models.TextChoices):
-    AMO = "amo", "Assistant Medical Officer (Anaesthesia)"
-    CO = "co", "Clinical Officer (Anaesthesia)"
-    NURSE = "nurse", "Nurse Anaesthetist"
-    BSC = "bsc", "BSc Anaesthesia"
-    MSC = "msc", "MSc / Advanced Anaesthesia Practitioner"
-    TUTOR = "tutor", "Tutor / Lecturer in Anaesthesia"
-    STUDENT = "student", "Student (Anaesthesia)"
-    OTHER = "other", "Other"
+class Cadre(models.Model):
+    """Professional cadres (managed by TANPA in the admin)."""
+
+    name = models.CharField(max_length=120, unique=True)
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["order", "name"]
+
+    def __str__(self):
+        return self.name
 
 
 class Sequence(models.Model):
@@ -83,7 +86,7 @@ class Member(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     phone = models.CharField(max_length=20, help_text="Mobile number, e.g. 0758 420 006")
     national_id = models.CharField("NIDA number", max_length=30, blank=True)
-    cadre = models.CharField(max_length=20, choices=Cadre.choices)
+    cadre = models.ForeignKey(Cadre, null=True, blank=True, on_delete=models.SET_NULL, related_name="members")
     professional_reg_no = models.CharField(
         "Professional registration number", max_length=50, blank=True,
         help_text="Registration number from your professional council, if any.",
@@ -117,6 +120,10 @@ class Member(models.Model):
     @property
     def display_name(self):
         return f"{self.title} {self.full_name}".strip()
+
+    @property
+    def cadre_name(self):
+        return self.cadre.name if self.cadre_id else ""
 
     @property
     def email(self):

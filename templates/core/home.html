@@ -1,170 +1,309 @@
 {% extends "base.html" %}{% load static humanize %}
 {% block content %}
-<section class="hero">
-  <div class="hero-bg" style="background-image:url('{% static 'img/gallery/tanpa-02.jpg' %}')"></div>
+{# ================= HERO ================= #}
+<section class="hero grain">
+  <div class="hero-photo" style="background-image:url('{% if site.hero_image %}{{ site.hero_image.url }}{% else %}{% static 'img/gallery/tanpa-02.jpg' %}{% endif %}')"></div>
+  <div class="hero-grid-bg"></div>
+  <svg class="hero-ecg" viewBox="0 0 1600 120" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="ecgGrad" x1="0" x2="1"><stop offset="0" stop-color="#ffd60a" stop-opacity="0"/><stop offset=".3" stop-color="#ffd60a"/><stop offset=".7" stop-color="#7ce6a1"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0"/></linearGradient></defs>
+    {% include "partials/ecg_wide.html" %}
+  </svg>
   <div class="wrap">
     <div>
-      <span class="pill"><i></i> Official professional body · Tanzania</span>
-      <h1>Safe anaesthesia for <em>every patient</em>, in every hospital.</h1>
-      <p class="lead">{{ site.hero_intro }}</p>
+      <span class="hero-tag"><span class="dot"></span>{{ site.name }}</span>
+      <h1>
+        {% if site.hero_title %}<span class="line"><span>{{ site.hero_title }}</span></span>
+        {% else %}
+        <span class="line"><span>Safe anaesthesia.</span></span>
+        <span class="line"><span>Safer surgery.</span></span>
+        <span class="line"><span><span class="rotator"><span class="grad-text on">Every patient.</span><span class="grad-text">Every hospital.</span><span class="grad-text">Every region.</span></span></span></span>
+        {% endif %}
+      </h1>
+      <p class="lead">{% if site.hero_subtitle %}{{ site.hero_subtitle }}{% else %}The national home of non-physician anaesthesia providers in Tanzania. Register, pay your fees by mobile money and carry your verified membership card, all from your phone.{% endif %}</p>
       <div class="actions">
-        <a class="btn btn-yellow" href="{% url 'members:register' %}">Become a member {% include "partials/icon.html" with name="arrow" size=18 %}</a>
-        <a class="btn btn-ghost-light" href="{% url 'login' %}">Member portal</a>
+        <a class="btn btn-yellow btn-lg" href="{% url 'members:register' %}" data-magnetic>Become a member {% include "partials/icon.html" with name="arrow" size=20 %}</a>
+        <a class="btn btn-ghost btn-lg" href="{% url 'login' %}">Member portal</a>
       </div>
     </div>
-    {% if next_event %}
-    <aside class="hero-card">
-      <span class="tag">{{ next_event.get_kind_display }}</span>
-      <h3>{{ next_event.title }}</h3>
-      {% if next_event.theme %}<p class="muted small" style="margin:0">Theme: {{ next_event.theme }}</p>{% endif %}
-      <div class="meta">
-        <div>{% include "partials/icon.html" with name="calendar" size=17 %}<span>{{ next_event.start_date|date:"j M" }} – {{ next_event.end_date|date:"j M Y" }}</span></div>
-        <div>{% include "partials/icon.html" with name="pin" size=17 %}<span>{{ next_event.venue }}, {{ next_event.city }}</span></div>
+
+    <aside class="monitor" aria-label="TANPA at a glance">
+      <div class="monitor-top"><span>TANPA · Live register</span><span class="live">Live</span></div>
+      <div class="ecg-box">{% include "partials/ecg_monitor.html" %}</div>
+      <div class="vitals">
+        <div class="vital g"><span>Members</span><b data-count="{{ member_count }}">{{ member_count }}</b></div>
+        <div class="vital y"><span>Active {% now "Y" %}</span><b data-count="{{ active_count }}">{{ active_count }}</b></div>
+        <div class="vital c"><span>Regions</span><b data-count="{{ region_count }}">{{ region_count }}</b></div>
+        <div class="vital"><span>Events</span><b data-count="{{ event_count }}">{{ event_count }}</b></div>
       </div>
-      <a class="btn btn-primary btn-block" href="{{ next_event.get_absolute_url }}">{% if next_event.can_register %}Register now{% else %}View details{% endif %}</a>
+      {% if next_event %}
+      <div class="monitor-event">
+        <small>Next · {{ next_event.get_kind_display }}</small>
+        <b>{{ next_event.title }}</b>
+        <div class="countdown" data-countdown="{{ next_event.start_date|date:'c' }}T08:00:00+03:00">
+          <div><b>0</b><span>Days</span></div><div><b>00</b><span>Hrs</span></div><div><b>00</b><span>Min</span></div><div><b>00</b><span>Sec</span></div>
+        </div>
+        <a class="btn btn-yellow btn-sm btn-block" href="{{ next_event.get_absolute_url }}">{% if next_event.can_register %}Register now{% else %}View details{% endif %}</a>
+      </div>
+      {% endif %}
     </aside>
-    {% else %}
-    <aside class="hero-card">
-      <span class="tag">Membership {% now "Y" %}</span>
-      <h3>Join in three simple steps</h3>
-      <ul class="checklist small">
-        <li>Create your account online</li>
-        <li>Pay entry fee &amp; annual subscription by mobile money</li>
-        <li>Download your membership ID card</li>
+  </div>
+  <div class="scroll-cue" aria-hidden="true"><i></i>Scroll</div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    {% for _ in "12" %}
+    <span>Safe anaesthesia {% include "partials/icon.html" with name="pulse" %} Safer surgical care {% include "partials/icon.html" with name="pulse" %} Tanzania &amp; beyond {% include "partials/icon.html" with name="pulse" %} Professional excellence {% include "partials/icon.html" with name="pulse" %} One national voice {% include "partials/icon.html" with name="pulse" %}</span>
+    {% endfor %}
+  </div>
+</div>
+
+{# ================= ABOUT (only when TANPA has entered it) ================= #}
+{% if site.about %}
+<section class="section">
+  <div class="wrap about-grid">
+    <div class="photo-wrap" data-reveal="left">
+      <div class="badge-ring" aria-hidden="true">
+        <svg viewBox="0 0 200 200"><defs><path id="circ" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs><text><textPath href="#circ">Tanzania · Non Physician Anaesthetists · Tanzania · Non Physician Anaesthetists ·</textPath></text></svg>
+        <img src="{% static 'img/tanpa-logo-256.png' %}" alt="">
+      </div>
+      <div class="photo-frame">
+        <img src="{% if site.about_image %}{{ site.about_image.url }}{% else %}{% static 'img/gallery/tanpa-01.jpg' %}{% endif %}" alt="TANPA members" loading="lazy">
+        <div class="photo-caption"><small>Our community</small>United for safe anaesthesia</div>
+      </div>
+      {% if site.founded_year %}<div class="float-chip"><div class="ic">{% include "partials/icon.html" with name="award" size=22 %}</div><div><b>{{ site.founded_year }}</b><span>Year established</span></div></div>
+      {% elif member_count %}<div class="float-chip"><div class="ic">{% include "partials/icon.html" with name="users" size=22 %}</div><div><b>{{ member_count|intcomma }}</b><span>Registered members</span></div></div>{% endif %}
+    </div>
+    <div data-reveal="right">
+      <span class="kicker">Who we are</span>
+      <h2>The professional home of <span class="grad-text-dark">non-physician anaesthetists</span></h2>
+      <p class="lede">{{ site.about|linebreaksbr|truncatewords_html:45 }}</p>
+      {% if site.mission or site.vision %}
+      <div class="pillars">
+        {% if site.mission %}<div class="pillar"><h4>{% include "partials/icon.html" with name="award" size=18 %} Mission</h4><p>{{ site.mission|truncatewords:28 }}</p></div>{% endif %}
+        {% if site.vision %}<div class="pillar"><h4>{% include "partials/icon.html" with name="heart" size=18 %} Vision</h4><p>{{ site.vision|truncatewords:28 }}</p></div>{% endif %}
+      </div>
+      {% endif %}
+      <a class="btn btn-dark" href="{% url 'core:about' %}">Our story {% include "partials/icon.html" with name="arrow" size=18 %}</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ================= JOURNEY ================= #}
+<section class="section dark grain">
+  <div class="wrap">
+    <div class="head center" data-reveal>
+      <span class="kicker light">Membership in four beats</span>
+      <h2>From sign-up to <span class="grad-text">verified member</span> in minutes</h2>
+      <p>No paper forms, no queues at the office. Everything happens online, from any phone.</p>
+    </div>
+    <div class="journey" data-reveal>
+      <span class="fill"></span>
+      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="user" %}</div><h3>Register</h3><p>Fill in your professional details and upload a passport photo.</p></div>
+      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="pay" %}</div><h3>Pay</h3><p>Entry fee and annual subscription by mobile money or bank.</p></div>
+      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="shield" %}</div><h3>Get your number</h3><p>A permanent TANPA membership number is issued instantly.</p></div>
+      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="card" %}</div><h3>Download your ID</h3><p>Print or show your QR-verified card. Renew yearly to stay active.</p></div>
+    </div>
+  </div>
+</section>
+
+{# ================= BENTO ================= #}
+<section class="section mist">
+  <div class="wrap">
+    <div class="split-head">
+      <div class="head" data-reveal><span class="kicker">One platform</span><h2>Everything a member needs, <span class="grad-text-dark">in one place</span></h2></div>
+      <a class="btn btn-outline" href="{% url 'core:membership' %}" data-reveal>How membership works {% include "partials/icon.html" with name="arrow" size=18 %}</a>
+    </div>
+    <div class="bento">
+      <article class="tile t-a" data-reveal>
+        <div class="ic">{% include "partials/icon.html" with name="pay" %}</div>
+        <h3>Pay right from your phone</h3>
+        <p>Approve a mobile-money prompt and your membership updates automatically. No receipts to carry to the office.</p>
+        <div class="phone" aria-hidden="true">
+          <div class="ph-head">TANPA · PAYMENT</div>
+          <div class="ph-amt">{% if fees %}TZS {{ fees.joining_total|intcomma }}{% else %}TZS •••••{% endif %}</div>
+          <div class="ph-row"><span>Entry fee</span><span>✓</span></div>
+          <div class="ph-row"><span>Subscription {% now "Y" %}</span><span>✓</span></div>
+          <div class="ph-row"><span>Reference</span><span>TNP•••••</span></div>
+          <div class="ph-ok"><i>✓</i> Payment received</div>
+        </div>
+      </article>
+      <article class="tile t-b" data-reveal style="--d:.08s">
+        <div class="ic">{% include "partials/icon.html" with name="card" %}</div>
+        <h3>A digital ID that can't be faked</h3>
+        <p>Every card carries a QR code. One scan shows the member's live status from the official register.</p>
+      </article>
+      <article class="tile t-c" data-reveal style="--d:.16s">
+        <div class="ic">{% include "partials/icon.html" with name="calendar" %}</div>
+        <h3>Conferences without the queue</h3>
+        <p>Register for the scientific conference and AGM, pay, and walk in with your QR badge.</p>
+      </article>
+      <article class="tile t-s" data-reveal>
+        <div class="ic">{% include "partials/icon.html" with name="qr" %}</div>
+        <h3>Verify anyone</h3>
+        <p>Hospitals and partners can confirm a membership number in seconds.</p>
+      </article>
+      <article class="tile t-s t-e" data-reveal style="--d:.08s">
+        <div class="ic">{% include "partials/icon.html" with name="receipt" %}</div>
+        <h3>Instant receipts</h3>
+        <p>Every payment is recorded, emailed and kept in your history.</p>
+      </article>
+      <article class="tile t-s" data-reveal style="--d:.16s">
+        <div class="ic">{% include "partials/icon.html" with name="lock" %}</div>
+        <h3>Your data, protected</h3>
+        <p>Secure accounts, encrypted connections and private payment records.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{# ================= 3D ID CARD ================= #}
+<section class="section">
+  <div class="wrap about-grid">
+    <div data-reveal="left">
+      <span class="kicker">Your membership card</span>
+      <h2>Carry your status. <span class="grad-text-dark">Prove it in one scan.</span></h2>
+      <p class="lede" style="font-size:1.25rem">Active members download a bank-card-size ID with their photo, membership number and a QR code linked to the live register.</p>
+      <ul class="ticks">
+        <li>Valid for the year you've paid; renew online in a minute</li>
+        <li>Shows <b>Active</b> or <b>Non-active</b> instantly when scanned</li>
+        <li>Print it, or keep the PDF on your phone</li>
       </ul>
-      <a class="btn btn-primary btn-block" href="{% url 'members:register' %}">Get started</a>
-    </aside>
+      <a class="btn btn-primary" href="{% url 'members:register' %}" data-magnetic>Get my card {% include "partials/icon.html" with name="arrow" size=18 %}</a>
+    </div>
+    <div class="card3d-stage" data-reveal="zoom">
+      <div class="card3d" aria-label="Example membership card">
+        <div class="c-head"><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""><div><b>TANZANIA ASSOCIATION OF NON PHYSICIAN ANAESTHETISTS</b><span>MEMBERSHIP IDENTITY CARD</span></div></div>
+        <div class="c-body">
+          <div class="c-photo">{% include "partials/icon.html" with name="user" size=34 %}</div>
+          <div>
+            <div class="c-name">Your name</div>
+            <div class="c-f">Membership No.</div><div class="c-v" style="font-family:var(--f-mono)">TANPA/{% now "Y" %}/0000</div>
+            <div class="c-f">Region</div><div class="c-v">Your region</div>
+          </div>
+        </div>
+        <div class="c-qr"></div>
+        <div class="c-foot"><span>VALID UNTIL <b>31 DEC {% now "Y" %}</b></span><em>ACTIVE MEMBER</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ================= EVENT SPOTLIGHT ================= #}
+{% with ev=next_event|default:last_event %}{% if ev %}
+<section class="section tight">
+  <div class="wrap">
+    <div class="event-spot" data-reveal="zoom">
+      <img src="{% if ev.banner %}{{ ev.banner.url }}{% else %}{% static 'img/gallery/tanpa-06.jpg' %}{% endif %}" alt="" loading="lazy">
+      <div class="inner">
+        <div>
+          <span class="kicker light">{% if ev == next_event %}Upcoming · {% else %}Recently · {% endif %}{{ ev.get_kind_display }}</span>
+          <h2>{{ ev.title }}</h2>
+          {% if ev.theme %}<p class="theme"><b>Theme:</b> {{ ev.theme }}</p>{% endif %}
+          <div class="meta">
+            <span>{% include "partials/icon.html" with name="calendar" size=16 %} {{ ev.start_date|date:"j" }}–{{ ev.end_date|date:"j F Y" }}</span>
+            <span>{% include "partials/icon.html" with name="pin" size=16 %} {{ ev.venue }}, {{ ev.city }}</span>
+          </div>
+        </div>
+        <div class="side">
+          {% if ev == next_event %}
+          <div class="countdown" data-countdown="{{ ev.start_date|date:'c' }}T08:00:00+03:00"><div><b>0</b><span>Days</span></div><div><b>00</b><span>Hrs</span></div><div><b>00</b><span>Min</span></div><div><b>00</b><span>Sec</span></div></div>
+          <a class="btn btn-yellow btn-block" href="{{ ev.get_absolute_url }}">{% if ev.can_register %}Register &amp; pay{% else %}See details{% endif %}</a>
+          {% else %}
+          <p style="margin:0 0 1rem;color:#cfe3d6">Thank you to every member, facilitator, sponsor and partner who made it a success.</p>
+          <a class="btn btn-yellow btn-block" href="{% url 'core:gallery' %}">View the photos</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}{% endwith %}
+
+{# ================= FEES ================= #}
+<section class="section mist">
+  <div class="wrap">
+    <div class="head center" data-reveal><span class="kicker">Membership fees{% if fees %} {{ fees.year }}{% endif %}</span><h2>Simple. Transparent. <span class="grad-text-dark">Online.</span></h2></div>
+    {% if fees %}
+    <div class="fees">
+      <div class="fee" data-reveal><small>Entry fee · paid once</small><b><sup>TZS</sup>{{ fees.entry_fee|intcomma }}</b><p class="muted" style="margin:0">Kiingilio, paid when you first join.</p></div>
+      <div class="fee" data-reveal style="--d:.08s"><small>Annual subscription</small><b><sup>TZS</sup>{{ fees.annual_fee|intcomma }}</b><p class="muted" style="margin:0">Ada ya mwaka, keeps you active.</p></div>
+      <div class="fee hot" data-reveal style="--d:.16s"><small style="color:var(--y)">New member pays today</small><b><sup>TZS</sup>{{ fees.joining_total|intcomma }}</b><a class="btn btn-yellow btn-sm" style="margin-top:12px" href="{% url 'members:register' %}">Join now</a></div>
+    </div>
+    {% else %}
+    <div class="tba" data-reveal style="max-width:640px;margin:0 auto"><div class="ic">{% include "partials/icon.html" with name="clock" %}</div><div><b style="color:var(--ink)">Fees will be announced soon.</b><br><span class="muted">You can already create your account; you'll be able to pay as soon as the fees are published.</span></div></div>
     {% endif %}
   </div>
 </section>
 
-<div class="stats">
-  <div class="wrap">
-    <div class="grid">
-      <div class="stat"><b>{{ member_count|intcomma }}</b><span>Registered members</span></div>
-      <div class="stat"><b>{{ active_count|intcomma }}</b><span>Active members {% now "Y" %}</span></div>
-      <div class="stat"><b>{{ region_count }}</b><span>Regions represented</span></div>
-      <div class="stat"><b>{{ event_count }}</b><span>Conferences &amp; meetings</span></div>
-    </div>
-  </div>
-</div>
-
-<section class="section">
-  <div class="wrap grid-2">
-    <div class="photo-stack">
-      <img src="{% static 'img/gallery/tanpa-01.jpg' %}" alt="TANPA members at the annual scientific conference" loading="lazy">
-      <div class="float">4th International Anaesthesia Scientific Conference &amp; AGM</div>
-    </div>
-    <div>
-      <span class="eyebrow">Who we are</span>
-      <h2>The professional home of non-physician anaesthetists in Tanzania</h2>
-      <p>{{ site.about|linebreaksbr|truncatewords_html:60 }}</p>
-      <ul class="checklist">
-        {% for o in site.objectives_list|slice:":3" %}<li>{{ o }}</li>{% endfor %}
-      </ul>
-      <a class="btn btn-outline" href="{% url 'core:about' %}">Learn more about TANPA</a>
-    </div>
-  </div>
-</section>
-
-<section class="section soft">
-  <div class="wrap">
-    <div class="section-head center center">
-      <span class="eyebrow">Everything online</span>
-      <h2>Your membership, in your pocket</h2>
-      <p class="muted">No more paper forms or waiting at the office. Register, pay and get your ID card from your phone.</p>
-    </div>
-    <div class="grid-4">
-      <div class="card lift"><div class="icon-badge">{% include "partials/icon.html" with name="user" %}</div><h3>Register online</h3><p class="muted small">Fill in your professional details and upload a passport photo.</p></div>
-      <div class="card lift"><div class="icon-badge yellow">{% include "partials/icon.html" with name="pay" %}</div><h3>Pay by mobile money</h3><p class="muted small">Pay the entry fee and annual subscription with M-Pesa, Mixx by Yas, Airtel Money or the bank.</p></div>
-      <div class="card lift"><div class="icon-badge navy">{% include "partials/icon.html" with name="card" %}</div><h3>Download your ID</h3><p class="muted small">Active members get a membership number and a printable ID card with a QR code.</p></div>
-      <div class="card lift"><div class="icon-badge">{% include "partials/icon.html" with name="calendar" %}</div><h3>Attend conferences</h3><p class="muted small">Register for the conference and AGM, pay, and download your admission badge.</p></div>
-    </div>
-  </div>
-</section>
-
+{# ================= GALLERY ================= #}
+{% if gallery %}
 <section class="section">
   <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Membership fees {{ fees.year }}</span>
-      <h2>Simple, transparent fees</h2>
+    <div class="split-head">
+      <div class="head" data-reveal><span class="kicker">Gallery</span><h2>Moments that <span class="grad-text-dark">move us</span></h2></div>
+      <a class="btn btn-outline" href="{% url 'core:gallery' %}" data-reveal>All photos {% include "partials/icon.html" with name="arrow" size=18 %}</a>
     </div>
-    <div class="grid-3">
-      <div class="card"><span class="muted small">Entry fee (kiingilio) · once</span><h2 style="margin:.3rem 0 0;color:var(--green-700)">TZS {{ fees.entry_fee|intcomma }}</h2></div>
-      <div class="card"><span class="muted small">Annual subscription (ada ya mwaka)</span><h2 style="margin:.3rem 0 0;color:var(--green-700)">TZS {{ fees.annual_fee|intcomma }}</h2></div>
-      <div class="card" style="background:var(--green-50);border-color:var(--green-100)"><span class="muted small">New member pays today</span><h2 style="margin:.3rem 0 .6rem;color:var(--green-700)">TZS {{ fees.entry_fee|add:fees.annual_fee|intcomma }}</h2><a href="{% url 'members:register' %}" class="btn btn-primary btn-sm">Join now</a></div>
+    <div class="reel" data-reveal="zoom">
+      {% for g in gallery %}<a href="{{ g.image.url }}" data-lightbox="{{ g.image.url }}" data-caption="{{ g.caption }}"><img src="{{ g.image.url }}" alt="{{ g.caption }}" loading="lazy">{% if g.caption %}<span>{{ g.caption }}</span>{% endif %}</a>{% endfor %}
     </div>
   </div>
 </section>
+{% endif %}
 
+{# ================= NEWS ================= #}
 {% if posts %}
-<section class="section soft">
+<section class="section mist">
   <div class="wrap">
-    <div class="section-head"><span class="eyebrow">News &amp; updates</span><h2>Latest from TANPA</h2></div>
-    <div class="grid-3">
-      {% for p in posts %}
-      <article class="card post-card lift">
-        <a class="thumb" href="{{ p.get_absolute_url }}" style="background-image:url('{% if p.image %}{{ p.image.url }}{% else %}{% static 'img/gallery/tanpa-06.jpg' %}{% endif %}')"></a>
-        <div class="body">
-          <span class="date">{{ p.published_at|date:"j F Y" }}</span>
-          <h3><a href="{{ p.get_absolute_url }}">{{ p.title }}</a></h3>
-          <p class="muted small">{{ p.summary|default:p.body|truncatewords:22 }}</p>
-        </div>
-      </article>
-      {% endfor %}
+    <div class="split-head">
+      <div class="head" data-reveal><span class="kicker">News &amp; updates</span><h2>Latest from TANPA</h2></div>
+      <a class="btn btn-outline" href="{% url 'core:post_list' %}" data-reveal>All news {% include "partials/icon.html" with name="arrow" size=18 %}</a>
     </div>
+    <div class="news">{% for p in posts %}{% include "core/_post_card.html" %}{% endfor %}</div>
   </div>
 </section>
 {% endif %}
 
-<section class="section">
-  <div class="wrap">
-    <div class="section-head" style="display:flex;justify-content:space-between;align-items:flex-end;max-width:none;gap:1rem;flex-wrap:wrap">
-      <div><span class="eyebrow">Gallery</span><h2 style="margin:0">Moments from our community</h2></div>
-      <a class="btn btn-outline btn-sm" href="{% url 'core:gallery' %}">View all photos</a>
-    </div>
-    <div class="mosaic">
-      {% if gallery %}
-        {% for g in gallery %}<a href="{% url 'core:gallery' %}"><img src="{{ g.image.url }}" alt="{{ g.caption }}" loading="lazy">{% if g.caption %}<figcaption>{{ g.caption }}</figcaption>{% endif %}</a>{% endfor %}
-      {% else %}
-        <a href="{% url 'core:gallery' %}"><img src="{% static 'img/gallery/tanpa-02.jpg' %}" alt="" loading="lazy"><figcaption>Opening of the 4th International Conference</figcaption></a>
-        <a href="{% url 'core:gallery' %}"><img src="{% static 'img/gallery/tanpa-04.jpg' %}" alt="" loading="lazy"></a>
-        <a href="{% url 'core:gallery' %}"><img src="{% static 'img/gallery/tanpa-06.jpg' %}" alt="" loading="lazy"></a>
-        <a href="{% url 'core:gallery' %}"><img src="{% static 'img/gallery/tanpa-08.jpg' %}" alt="" loading="lazy"></a>
-        <a href="{% url 'core:gallery' %}"><img src="{% static 'img/gallery/tanpa-03.jpg' %}" alt="" loading="lazy"></a>
-      {% endif %}
-    </div>
-  </div>
-</section>
-
+{# ================= LEADERS ================= #}
 {% if leaders %}
-<section class="section soft">
+<section class="section">
   <div class="wrap">
-    <div class="section-head center"><span class="eyebrow">Leadership</span><h2>Meet our leaders</h2></div>
-    <div class="grid-4">
-      {% for l in leaders %}
-      <div class="leader">
-        {% if l.photo %}<img class="avatar" src="{{ l.photo.url }}" alt="{{ l.name }}" loading="lazy">{% else %}<div class="avatar placeholder">{{ l.name|slice:":1" }}</div>{% endif %}
-        <h3>{{ l.name }}</h3><p class="muted small">{{ l.position }}</p>
-      </div>
-      {% endfor %}
+    <div class="split-head">
+      <div class="head" data-reveal><span class="kicker">Leadership</span><h2>The people <span class="grad-text-dark">leading TANPA</span></h2></div>
+      <a class="btn btn-outline" href="{% url 'core:about' %}#leadership" data-reveal>Full committee {% include "partials/icon.html" with name="arrow" size=18 %}</a>
     </div>
+    <div class="leaders">{% for l in leaders %}{% include "core/_leader.html" %}{% endfor %}</div>
   </div>
 </section>
 {% endif %}
 
-<section class="section">
-  <div class="wrap">
-    <div class="cta-band">
+{# ================= VERIFY + CTA ================= #}
+<section class="section tight">
+  <div class="wrap" style="display:grid;gap:28px">
+    <div class="verify-band" data-reveal>
       <div>
-        <h2>Is your membership active for {% now "Y" %}?</h2>
-        <p>Sign in to check your status, pay your annual subscription and download your ID card.</p>
+        <span class="kicker light">For hospitals &amp; partners</span>
+        <h2 style="font-size:clamp(1.8rem,3.2vw,2.6rem)">Verify a TANPA member in seconds</h2>
+        <p style="margin:0">Enter the membership number from the ID card, or simply scan its QR code.</p>
       </div>
-      <div style="display:flex;gap:.6rem;flex-wrap:wrap;position:relative;z-index:1">
-        <a class="btn btn-yellow" href="{% url 'login' %}">Check my status</a>
-        <a class="btn btn-ghost-light" href="{% url 'members:verify_lookup' %}">Verify a member</a>
+      <form class="vform" method="get" action="{% url 'members:verify_lookup' %}">
+        <label class="sr-only" for="vnum">Membership number</label>
+        <input id="vnum" name="number" placeholder="TANPA/2026/0001" required>
+        <button class="btn btn-yellow">{% include "partials/icon.html" with name="search" size=18 %} Verify</button>
+      </form>
+    </div>
+    <div class="cta-xl" data-reveal="zoom">
+      <span class="orb a"></span><span class="orb b"></span>
+      <span class="kicker light" style="justify-content:center">Join the movement</span>
+      <h2>Stronger together for safer surgery.</h2>
+      <p>Become part of Tanzania's national network of non-physician anaesthesia providers today.</p>
+      <div class="actions">
+        <a class="btn btn-yellow btn-lg" href="{% url 'members:register' %}" data-magnetic>Create my account {% include "partials/icon.html" with name="arrow" size=20 %}</a>
+        <a class="btn btn-ghost btn-lg" href="{% url 'login' %}">I'm already a member</a>
       </div>
     </div>
   </div>
 </section>
+<div class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer"><button class="lb-close" aria-label="Close">×</button><button class="lb-prev" aria-label="Previous">‹</button><img alt=""><button class="lb-next" aria-label="Next">›</button><p></p></div>
 {% endblock %}
