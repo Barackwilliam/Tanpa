@@ -5,7 +5,6 @@
   <div class="hero-photo" style="background-image:url('{% if site.hero_image %}{{ site.hero_image.url }}{% else %}{% static 'img/gallery/tanpa-02.jpg' %}{% endif %}')"></div>
   <div class="hero-grid-bg"></div>
   <svg class="hero-ecg" viewBox="0 0 1600 120" preserveAspectRatio="none" aria-hidden="true">
-    <defs><linearGradient id="ecgGrad" x1="0" x2="1"><stop offset="0" stop-color="#ffd60a" stop-opacity="0"/><stop offset=".3" stop-color="#ffd60a"/><stop offset=".7" stop-color="#7ce6a1"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0"/></linearGradient></defs>
     {% include "partials/ecg_wide.html" %}
   </svg>
   <div class="wrap">
@@ -16,7 +15,7 @@
         {% else %}
         <span class="line"><span>Safe anaesthesia.</span></span>
         <span class="line"><span>Safer surgery.</span></span>
-        <span class="line"><span><span class="rotator"><span class="grad-text on">Every patient.</span><span class="grad-text">Every hospital.</span><span class="grad-text">Every region.</span></span></span></span>
+        <span class="line"><span><span class="rotator"><span class="on">Every patient.</span><span>Every hospital.</span><span>Every region.</span></span></span></span>
         {% endif %}
       </h1>
       <p class="lead">{% if site.hero_subtitle %}{{ site.hero_subtitle }}{% else %}The national home of non-physician anaesthesia providers in Tanzania. Register, pay your fees by mobile money and carry your verified membership card, all from your phone.{% endif %}</p>
@@ -26,25 +25,19 @@
       </div>
     </div>
 
-    <aside class="monitor" aria-label="TANPA at a glance">
-      <div class="monitor-top"><span>TANPA · Live register</span><span class="live">Live</span></div>
+    <aside class="monitor" aria-label="Member services">
+      <div class="monitor-top"><span>TANPA · Member services</span><span class="live">Online</span></div>
       <div class="ecg-box">{% include "partials/ecg_monitor.html" %}</div>
-      <div class="vitals">
-        <div class="vital g"><span>Members</span><b data-count="{{ member_count }}">{{ member_count }}</b></div>
-        <div class="vital y"><span>Active {% now "Y" %}</span><b data-count="{{ active_count }}">{{ active_count }}</b></div>
-        <div class="vital c"><span>Regions</span><b data-count="{{ region_count }}">{{ region_count }}</b></div>
-        <div class="vital"><span>Events</span><b data-count="{{ event_count }}">{{ event_count }}</b></div>
+      <div class="msvc">
+        <a href="{% url 'members:register' %}"><span class="ic">{% include "partials/icon.html" with name="user" %}</span><span><b>Join TANPA</b><small>Register &amp; get your number</small></span><span class="go">→</span></a>
+        <a href="{% url 'members:dashboard' %}"><span class="ic">{% include "partials/icon.html" with name="pay" %}</span><span><b>Renew {% now "Y" %} subscription</b><small>Mobile money or bank</small></span><span class="go">→</span></a>
+        <a href="{% url 'members:id_card' %}"><span class="ic">{% include "partials/icon.html" with name="card" %}</span><span><b>Download your ID card</b><small>For active members</small></span><span class="go">→</span></a>
       </div>
-      {% if next_event %}
-      <div class="monitor-event">
-        <small>Next · {{ next_event.get_kind_display }}</small>
-        <b>{{ next_event.title }}</b>
-        <div class="countdown" data-countdown="{{ next_event.start_date|date:'c' }}T08:00:00+03:00">
-          <div><b>0</b><span>Days</span></div><div><b>00</b><span>Hrs</span></div><div><b>00</b><span>Min</span></div><div><b>00</b><span>Sec</span></div>
-        </div>
-        <a class="btn btn-yellow btn-sm btn-block" href="{{ next_event.get_absolute_url }}">{% if next_event.can_register %}Register now{% else %}View details{% endif %}</a>
-      </div>
-      {% endif %}
+      <form class="mver" method="get" action="{% url 'members:verify_lookup' %}" role="search">
+        <label class="sr-only" for="hero-verify">Membership number to verify</label>
+        <input id="hero-verify" name="number" placeholder="Verify: TANPA/{% now "Y" %}/0001" autocomplete="off" required>
+        <button>Check</button>
+      </form>
     </aside>
   </div>
   <div class="scroll-cue" aria-hidden="true"><i></i>Scroll</div>
@@ -98,13 +91,7 @@
       <h2>From sign-up to <span class="grad-text">verified member</span> in minutes</h2>
       <p>No paper forms, no queues at the office. Everything happens online, from any phone.</p>
     </div>
-    <div class="journey" data-reveal>
-      <span class="fill"></span>
-      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="user" %}</div><h3>Register</h3><p>Fill in your professional details and upload a passport photo.</p></div>
-      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="pay" %}</div><h3>Pay</h3><p>Entry fee and annual subscription by mobile money or bank.</p></div>
-      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="shield" %}</div><h3>Get your number</h3><p>A permanent TANPA membership number is issued instantly.</p></div>
-      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="card" %}</div><h3>Download your ID</h3><p>Print or show your QR-verified card. Renew yearly to stay active.</p></div>
-    </div>
+    {% include "core/_journey.html" %}
   </div>
 </section>
 

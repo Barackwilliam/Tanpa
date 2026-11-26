@@ -4,13 +4,7 @@
 {% include "core/page_head.html" with title="Membership that works as hard as you do" subtitle="Join Tanzania's national body of non-physician anaesthesia providers, entirely online." crumb="Membership" %}
 <section class="section dark grain" style="padding-top:90px">
   <div class="wrap">
-    <div class="journey" data-reveal>
-      <span class="fill"></span>
-      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="user" %}</div><h3>Create an account</h3><p>Email, professional details and a passport photo.</p></div>
-      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="pay" %}</div><h3>Pay your fees</h3><p>Entry fee + annual subscription, by mobile money or bank.</p></div>
-      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="shield" %}</div><h3>Get your number</h3><p>Issued as soon as your payment is confirmed.</p></div>
-      <div class="jstep"><div class="num">{% include "partials/icon.html" with name="card" %}</div><h3>Download your ID</h3><p>Renew every year to stay active.</p></div>
-    </div>
+    {% include "core/_journey.html" %}
     <div class="center" style="margin-top:56px"><a class="btn btn-yellow btn-lg" href="{% url 'members:register' %}" data-magnetic>Start my registration {% include "partials/icon.html" with name="arrow" size=20 %}</a></div>
   </div>
 </section>
