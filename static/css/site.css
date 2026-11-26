@@ -987,3 +987,11 @@ h1,h2,h3{overflow-wrap:break-word}
 @media(max-width:900px){.values ul:not(.ticks){grid-template-columns:repeat(2,minmax(0,1fr))}}
 .values li .v-n{display:block;font-family:var(--f-mono);font-size:.72rem;color:var(--y);margin-bottom:6px}
 .values ul:not(.ticks) li{padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#fff;font-weight:700}
+
+/* Who we are: vision / mission blocks */
+.pillars{grid-template-columns:minmax(0,1fr);gap:12px;margin:1.6rem 0 2rem}
+.pillar{position:relative;padding:18px 20px 18px 22px;border-radius:16px;background:var(--mist);border:1px solid var(--line);overflow:hidden}
+.pillar::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--g-600)}
+.pillar h4{font-family:var(--f-mono);font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--g-600);margin:0 0 .45rem}
+.pillar h4 svg{width:15px;height:15px}
+.pillar p{margin:0;font-size:1rem;line-height:1.55;color:var(--ink);font-weight:500}
