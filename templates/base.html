@@ -68,7 +68,7 @@
 <footer class="footer">
   <div class="wrap">
     <div class="f-top">
-      <div>
+      <div class="f-brand">
         <a class="brand" href="{% url 'core:home' %}"><img src="{% static 'img/tanpa-logo-256.png' %}" alt="" width="52" height="52"><span><b>{{ site.short_name }}</b><small>{{ site.name }}</small></span></a>
         {% if site.tagline %}<p style="margin-top:1.4rem;max-width:26em">{{ site.tagline }}</p>{% endif %}
         {% if site.has_social %}<div class="social">
@@ -80,7 +80,7 @@
           {% if site.whatsapp %}<a href="https://wa.me/{{ site.whatsapp }}" aria-label="WhatsApp" target="_blank" rel="noopener">{% include "partials/icon.html" with name="whatsapp" size=18 %}</a>{% endif %}
         </div>{% endif %}
       </div>
-      <div>
+      <div class="f-col">
         <h4>Association</h4>
         <ul>
           <li><a href="{% url 'core:about' %}">About TANPA</a></li>
@@ -90,7 +90,7 @@
           {% if site.constitution %}<li><a href="{{ site.constitution.url }}" target="_blank">Constitution</a></li>{% endif %}
         </ul>
       </div>
-      <div>
+      <div class="f-col">
         <h4>Members</h4>
         <ul>
           <li><a href="{% url 'members:register' %}">Become a member</a></li>
@@ -99,19 +99,19 @@
           <li><a href="{% url 'members:verify_lookup' %}">Verify a member</a></li>
         </ul>
       </div>
-      <div>
+      <div class="f-reach">
         <h4>Reach us</h4>
-        <ul>
-          {% if site.address %}<li>{{ site.address }}</li>{% endif %}
-          {% if site.po_box %}<li>{{ site.po_box }}</li>{% endif %}
-          {% if site.phone %}<li><a href="tel:{{ site.phone|cut:' ' }}">{{ site.phone }}</a></li>{% endif %}
-          {% if site.email %}<li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>{% endif %}
-          <li><a href="{% url 'core:contact' %}">Send us a message →</a></li>
+        {% if not site.phone and not site.email and not site.address and not site.po_box %}<p class="f-note">Questions about membership, payments or events? Write to the secretariat.</p>{% endif %}
+        <ul class="f-contact">
+          {% if site.phone %}<li><a href="tel:{{ site.phone|cut:' ' }}">{% include "partials/icon.html" with name="phone" size=16 %}<span>{{ site.phone }}</span></a></li>{% endif %}
+          {% if site.email %}<li><a href="mailto:{{ site.email }}">{% include "partials/icon.html" with name="mail" size=16 %}<span>{{ site.email }}</span></a></li>{% endif %}
+          {% if site.address or site.po_box %}<li><span class="f-ci">{% include "partials/icon.html" with name="pin" size=16 %}<span>{{ site.address }}{% if site.address and site.po_box %}, {% endif %}{{ site.po_box }}</span></span></li>{% endif %}
         </ul>
+        <a class="btn btn-yellow btn-sm f-msg" href="{% url 'core:contact' %}">Send us a message {% include "partials/icon.html" with name="arrow" size=16 %}</a>
       </div>
     </div>
     <div class="f-bottom">
-      <span>© {% now "Y" %} {{ site.name }}</span>
+      <span>© {% now "Y" %} {{ site.short_name }}. All rights reserved.</span>
       <span class="made">Crafted with <i>♥</i> by <a href="https://jamiitek.com" target="_blank" rel="noopener" title="JamiiTek"><b>JamiiTek</b></a></span>
     </div>
   </div>

@@ -939,3 +939,24 @@ h1,h2,h3{overflow-wrap:break-word}
 .vresult p{margin:0 0 8px;color:var(--body);font-size:.95rem;overflow-wrap:anywhere}
 .vresult .mono{font-weight:600;color:var(--ink);background:var(--mist);padding:1px 6px;border-radius:6px}
 .vresult ul{margin:0;padding-left:18px;color:var(--muted);font-size:.88rem;display:grid;gap:3px}
+
+/* ---------- footer refresh ---------- */
+.f-bottom{background:transparent}
+.f-contact{gap:.55rem!important}
+.f-contact a,.f-contact .f-ci{display:flex;align-items:flex-start;gap:10px;color:#c7dacd}
+.f-contact svg{flex:none;margin-top:3px;color:var(--g-300)}
+.f-contact span{overflow-wrap:anywhere}
+.f-msg{margin-top:18px}
+@media(max-width:960px){.f-top{grid-template-columns:1fr 1fr}.f-brand,.f-reach{grid-column:1/-1}}
+@media(max-width:600px){
+  .footer{padding-top:64px}
+  .f-top{grid-template-columns:1fr 1fr;gap:34px 18px}
+  .footer h4{margin-bottom:.9rem;font-size:.68rem}
+  .footer ul{gap:.55rem;font-size:.92rem}
+  .f-brand .brand small{display:block;max-width:15em;font-size:.68rem;line-height:1.35;margin-top:4px}
+  .f-reach{padding:20px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+  .f-msg{width:100%;justify-content:center}
+  .f-bottom{margin-top:40px;flex-direction:column;align-items:center;text-align:center;gap:8px;font-size:.8rem}
+}
+.footer a.btn-yellow,.footer a.btn-yellow:hover{color:var(--g-900)}
+.f-note{color:#9db7a6;font-size:.92rem;margin:0}
