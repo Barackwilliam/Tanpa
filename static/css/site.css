@@ -817,3 +817,9 @@ h1,h2,h3{overflow-wrap:break-word}
   .card3d .c-foot em{padding:2px 7px}
   .lede{font-size:1.15rem}
 }
+/* fact list (replaces descriptive paragraphs) */
+.facts{margin:1.6rem 0 2rem;display:grid;border-top:1px solid var(--line)}
+.facts>div{display:grid;grid-template-columns:130px minmax(0,1fr);gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.facts dt{font-family:var(--f-mono);font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--g-600);padding-top:3px}
+.facts dd{margin:0;color:var(--ink);font-weight:600}
+@media(max-width:480px){.facts>div{grid-template-columns:1fr;gap:2px}}
