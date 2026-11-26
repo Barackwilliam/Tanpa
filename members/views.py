@@ -234,10 +234,20 @@ def verify(request, token):
 def verify_lookup(request):
     form = VerifyLookupForm(request.GET or None)
     not_found = False
+    searched = ""
     if request.GET and form.is_valid():
         number = form.cleaned_data["number"].strip().upper()
+        searched = number
         m = Member.objects.filter(membership_number__iexact=number).first()
         if m:
             return redirect("members:verify", token=m.verification_token)
         not_found = True
-    return render(request, "members/verify_lookup.html", {"form": form, "not_found": not_found})
+    import re
+
+    return render(request, "members/verify_lookup.html", {
+        "form": form,
+        "not_found": not_found,
+        "searched": searched,
+        "bad_format": bool(searched) and not re.fullmatch(r"TANPA/\d{4}/\d{3,5}", searched),
+        "example": f"TANPA/{timezone.localdate().year}/0001",
+    })

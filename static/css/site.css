@@ -930,3 +930,12 @@ h1,h2,h3{overflow-wrap:break-word}
 .phero .hero-grid-bg{mask-image:radial-gradient(ellipse at 75% 25%,#000 0%,transparent 55%)}
 .idc-back{background-image:linear-gradient(rgba(124,230,161,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,230,161,.04) 1px,transparent 1px)}
 .grain::after{opacity:.03}
+
+/* verify: not-found result */
+.vform.is-bad{border-color:rgba(248,113,113,.7);box-shadow:0 0 0 4px rgba(248,113,113,.12)}
+.vresult{display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:18px;background:#fff;color:var(--ink);box-shadow:0 18px 40px -20px rgba(0,0,0,.6);animation:fade-up .45s var(--ease) both}
+.vr-ic{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#fee2e2;color:#b91c1c}
+.vresult b{display:block;font-family:var(--f-display);font-size:1.2rem;color:#b91c1c;margin-bottom:2px}
+.vresult p{margin:0 0 8px;color:var(--body);font-size:.95rem;overflow-wrap:anywhere}
+.vresult .mono{font-weight:600;color:var(--ink);background:var(--mist);padding:1px 6px;border-radius:6px}
+.vresult ul{margin:0;padding-left:18px;color:var(--muted);font-size:.88rem;display:grid;gap:3px}

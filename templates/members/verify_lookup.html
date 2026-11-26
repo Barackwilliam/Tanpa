@@ -6,8 +6,21 @@
   <div class="wrap" style="max-width:720px">
     <form class="verify-band" method="get" style="grid-template-columns:1fr">
       <div><span class="kicker light">Official register</span><h2 style="font-size:2rem">Enter the membership number</h2></div>
-      <div class="vform"><label class="sr-only" for="id_number">Membership number</label>{{ form.number }}<button class="btn btn-yellow">{% include "partials/icon.html" with name="search" size=18 %} Verify</button></div>
-      {% if not_found %}<p style="color:#fca5a5;font-weight:700;margin:0">No member found with that number. Check it and try again.</p>{% endif %}
+      <div class="vform{% if not_found %} is-bad{% endif %}"><label class="sr-only" for="id_number">Membership number</label>{{ form.number }}<button class="btn btn-yellow">{% include "partials/icon.html" with name="search" size=18 %} Verify</button></div>
+      {% if not_found %}
+      <div class="vresult" role="alert">
+        <span class="vr-ic" aria-hidden="true">{% include "partials/icon.html" with name="x" size=22 %}</span>
+        <div>
+          <b>No member found</b>
+          <p><span class="mono">{{ searched|truncatechars:30 }}</span> is not in the TANPA register.</p>
+          <ul>
+            {% if bad_format %}<li>Membership numbers look like <span class="mono">{{ example }}</span>.</li>{% endif %}
+            <li>Check the number on the front of the ID card and try again.</li>
+            <li>Or scan the QR code on the back of the card.</li>
+          </ul>
+        </div>
+      </div>
+      {% endif %}
     </form>
   </div>
 </section>
