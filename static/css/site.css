@@ -1050,3 +1050,31 @@ h1,h2,h3{overflow-wrap:break-word}
   .ecg-box{height:56px}
   .phero{padding:118px 0 52px}
 }
+
+/* ---- desktop polish ---- */
+/* gallery reel: 1 large + up to 4 small, never an orphan tile */
+.reel{grid-auto-rows:0;overflow:hidden}
+.reel a:nth-child(4){grid-column:auto}
+.reel a:nth-child(n+6){display:none}
+.reel:has(a:nth-child(4):last-child) a:nth-child(4){grid-column:span 2}
+@media(min-width:801px){.reel{grid-template-rows:230px 230px}}
+@media(max-width:800px){.reel{grid-auto-rows:auto}.reel a:nth-child(n+4){display:none}}
+/* journey tags stay on one line */
+.j-tag{letter-spacing:.05em;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+/* fee cards: content centred, no empty bottom */
+.fee{display:flex;flex-direction:column;justify-content:center}
+.fee .btn{align-self:flex-start}
+.j-tag{white-space:normal;overflow:visible;text-overflow:clip;font-size:.62rem;letter-spacing:.04em;line-height:1.5}
+/* contact quick answers */
+.c-help{margin-top:6px;padding:22px;border-radius:var(--r);background:var(--g-950);color:#c7dacd}
+.c-help h3{color:#fff;font-size:1.05rem;margin-bottom:10px}
+.c-help a{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid rgba(255,255,255,.08);color:#e7f3ea}
+.c-help a:first-of-type{border-top:0}
+.c-help a span{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.06);color:var(--g-300);flex:none}
+.c-help a b{font-weight:600;font-size:.95rem}
+.c-help a i{margin-left:auto;font-style:normal;color:#5f7d6a;font-size:1.3rem;transition:transform .2s}
+.c-help a:hover{color:var(--y)}
+.c-help a:hover i{color:var(--y);transform:translateX(3px)}
+/* events: compact empty state, solid date tiles */
+.ev-list .coming{padding:36px 20px}
+.ev .d{background:var(--g-700)}

@@ -161,7 +161,7 @@
       <a class="btn btn-outline" href="{% url 'core:gallery' %}" data-reveal>Explore all photos {% include "partials/icon.html" with name="arrow" size=18 %}</a>
     </div>
     <div class="reel" data-reveal="zoom">
-      {% for g in gallery %}<a href="{{ g.image.url }}" data-lightbox="{{ g.image.url }}" data-caption="{{ g.caption }}"><img src="{{ g.image.url }}" alt="{{ g.caption }}" loading="lazy">{% if g.caption %}<span>{{ g.caption }}</span>{% endif %}</a>{% endfor %}
+      {% for g in gallery|slice:":5" %}<a href="{{ g.image.url }}" data-lightbox="{{ g.image.url }}" data-caption="{{ g.caption }}"><img src="{{ g.image.url }}" alt="{{ g.caption }}" loading="lazy">{% if g.caption %}<span>{{ g.caption }}</span>{% endif %}</a>{% endfor %}
     </div>
   </div>
 </section>

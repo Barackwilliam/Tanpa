@@ -11,6 +11,14 @@
       {% if site.address or site.po_box %}<div class="ci"><div class="ic">{% include "partials/icon.html" with name="pin" %}</div><div><small>Office</small><b>{{ site.address }}{% if site.po_box %}{% if site.address %}<br>{% endif %}{{ site.po_box }}{% endif %}</b></div></div>{% endif %}
       {% if site.office_hours %}<div class="ci"><div class="ic">{% include "partials/icon.html" with name="clock" %}</div><div><small>Office hours</small><b>{{ site.office_hours }}</b></div></div>{% endif %}
       {% if not site.phone and not site.email and not site.address %}<div class="ci"><div class="ic">{% include "partials/icon.html" with name="mail" %}</div><div><small>Write to us</small><b>Use the form and we'll get back to you.</b></div></div>{% endif %}
+      <div class="c-help">
+        <h3>Quick answers</h3>
+        <a href="{% url 'core:membership' %}"><span>{% include "partials/icon.html" with name="users" size=18 %}</span><b>Joining &amp; membership fees</b><i>›</i></a>
+        <a href="{% url 'login' %}"><span>{% include "partials/icon.html" with name="pay" size=18 %}</span><b>Pay or renew my subscription</b><i>›</i></a>
+        <a href="{% url 'members:card' %}"><span>{% include "partials/icon.html" with name="card" size=18 %}</span><b>Download my ID card</b><i>›</i></a>
+        <a href="{% url 'members:verify_lookup' %}"><span>{% include "partials/icon.html" with name="qr" size=18 %}</span><b>Verify a member</b><i>›</i></a>
+        <a href="{% url 'events:list' %}"><span>{% include "partials/icon.html" with name="calendar" size=18 %}</span><b>Conferences &amp; AGM</b><i>›</i></a>
+      </div>
     </div>
     <div class="card" data-reveal="right" style="padding:40px">
       <span class="kicker">Message</span>
