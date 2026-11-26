@@ -153,7 +153,7 @@
 {# ================= FEES ================= #}
 <section class="section mist">
   <div class="wrap">
-    <div class="head center" data-reveal><span class="kicker">Membership fees{% if fees %} {{ fees.year }}{% endif %}</span><h2>Membership fees</h2></div>
+    <div class="head center" data-reveal><span class="kicker">{% if fees %}Year {{ fees.year }}{% else %}Fees{% endif %}</span><h2>Membership fees</h2></div>
     {% if fees %}
     <div class="fees">
       <div class="fee" data-reveal><small>Entry fee · paid once</small><b><sup>TZS</sup>{{ fees.entry_fee|intcomma }}</b><p class="muted" style="margin:0">Kiingilio · paid once</p></div>
