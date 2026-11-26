@@ -147,7 +147,7 @@
       <div class="fee hot" data-reveal style="--d:.16s"><small style="color:var(--y)">Total · new members</small><b><sup>TZS</sup>{{ fees.joining_total|intcomma }}</b><p style="margin:0 0 12px">Entry fee + first annual subscription.</p><a class="btn btn-yellow btn-sm" href="{% url 'members:register' %}">Become a member →</a></div>
     </div>
     {% else %}
-    <div class="tba" data-reveal style="max-width:640px;margin:0 auto"><div class="ic">{% include "partials/icon.html" with name="clock" %}</div><div><b style="color:var(--ink)">Membership fees</b><br><span class="muted">Membership registration is open. Fee details and payment options will be announced soon.</span></div></div>
+    <div class="tba" data-reveal style="max-width:640px;margin:0 auto"><div class="ic">{% include "partials/icon.html" with name="clock" %}</div><div><b style="color:var(--ink)">Fees coming soon</b><br><span class="muted">Membership registration is open. Fee details and payment options will be announced soon.</span></div></div>
     {% endif %}
   </div>
 </section>
