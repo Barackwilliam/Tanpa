@@ -91,15 +91,16 @@
 <section class="section">
   <div class="wrap about-grid">
     <div data-reveal="left">
-      <span class="kicker">For active members</span>
-      <h2>Membership <span class="grad-text-dark">ID card</span></h2>
-      <dl class="facts">
-        <div><dt>Shows</dt><dd>Photo, name, membership number, cadre and region</dd></div>
-        <div><dt>Verification</dt><dd>QR code showing current status: Active or Non-active</dd></div>
-        <div><dt>Validity</dt><dd>Until 31 December of the year paid</dd></div>
-        <div><dt>Format</dt><dd>PDF, bank-card size (85.6 × 54 mm), ready to print</dd></div>
-      </dl>
-      <a class="btn btn-primary" href="{% url 'members:id_card' %}">Download my card {% include "partials/icon.html" with name="download" size=18 %}</a>
+      <span class="kicker">Membership ID card</span>
+      <h2>A Digital Membership ID <span class="grad-text-dark">You Can Verify Instantly</span></h2>
+      <p class="lede" style="font-size:1.2rem">Active TANPA members can access and download their official digital membership ID card, featuring their photo, unique membership number, and a QR code linked to the official membership verification system.</p>
+      <ul class="ticks">
+        <li><b>Instant Verification</b> – Scan the QR code to verify membership status directly from the official TANPA register.</li>
+        <li><b>Real-Time Membership Status</b> – Instantly displays whether a membership is Active or Non-active.</li>
+        <li><b>Annual Validity</b> – Valid for the membership year paid, with convenient online renewal.</li>
+        <li><b>Digital &amp; Printable</b> – Download your membership card as a PDF, save it on your phone, or print it.</li>
+      </ul>
+      <a class="btn btn-primary" href="{% url 'members:id_card' %}">Access My Membership Card {% include "partials/icon.html" with name="arrow" size=18 %}</a>
     </div>
     <div class="card3d-stage" data-reveal="zoom">
       <div class="card3d" aria-label="Example membership card">
