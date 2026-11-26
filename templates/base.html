@@ -31,21 +31,29 @@
       <span><b>{{ site.short_name }}</b><small>Non Physician Anaesthetists</small></span>
     </a>
     <div class="nav-links" id="nav-links">
-      <a href="{% url 'core:home' %}" {% if path == "/" %}class="active"{% endif %}>Home</a>
-      <a href="{% url 'core:about' %}" {% if "/about" in path %}class="active"{% endif %}>About</a>
-      <a href="{% url 'core:membership' %}" {% if "/membership" in path %}class="active"{% endif %}>Membership</a>
-      <a href="{% url 'events:list' %}" {% if "/events" in path %}class="active"{% endif %}>Conferences</a>
-      <a href="{% url 'core:post_list' %}" {% if "/news" in path %}class="active"{% endif %}>News</a>
-      <a href="{% url 'core:gallery' %}" {% if "/gallery" in path %}class="active"{% endif %}>Gallery</a>
-      <a href="{% url 'core:contact' %}" {% if "/contact" in path %}class="active"{% endif %}>Contact</a>
+      <span class="nav-menu-label">Menu</span>
+      <a class="nav-item{% if path == "/" %} active{% endif %}" href="{% url 'core:home' %}" style="--n:0"><span class="nav-ic">{% include "partials/icon.html" with name="home" size=19 %}</span><span class="nav-tx">Home</span><span class="nav-chev" aria-hidden="true">›</span></a>
+      <a class="nav-item{% if "/about" in path %} active{% endif %}" href="{% url 'core:about' %}" style="--n:1"><span class="nav-ic">{% include "partials/icon.html" with name="book" size=19 %}</span><span class="nav-tx">About</span><span class="nav-chev" aria-hidden="true">›</span></a>
+      <a class="nav-item{% if "/membership" in path %} active{% endif %}" href="{% url 'core:membership' %}" style="--n:2"><span class="nav-ic">{% include "partials/icon.html" with name="users" size=19 %}</span><span class="nav-tx">Membership</span><span class="nav-chev" aria-hidden="true">›</span></a>
+      <a class="nav-item{% if "/events" in path %} active{% endif %}" href="{% url 'events:list' %}" style="--n:3"><span class="nav-ic">{% include "partials/icon.html" with name="calendar" size=19 %}</span><span class="nav-tx">Conferences</span><span class="nav-chev" aria-hidden="true">›</span></a>
+      <a class="nav-item{% if "/news" in path %} active{% endif %}" href="{% url 'core:post_list' %}" style="--n:4"><span class="nav-ic">{% include "partials/icon.html" with name="news" size=19 %}</span><span class="nav-tx">News</span><span class="nav-chev" aria-hidden="true">›</span></a>
+      <a class="nav-item{% if "/gallery" in path %} active{% endif %}" href="{% url 'core:gallery' %}" style="--n:5"><span class="nav-ic">{% include "partials/icon.html" with name="image" size=19 %}</span><span class="nav-tx">Gallery</span><span class="nav-chev" aria-hidden="true">›</span></a>
+      <a class="nav-item{% if "/contact" in path %} active{% endif %}" href="{% url 'core:contact' %}" style="--n:6"><span class="nav-ic">{% include "partials/icon.html" with name="mail" size=19 %}</span><span class="nav-tx">Contact</span><span class="nav-chev" aria-hidden="true">›</span></a>
       <div class="nav-cta">
         {% if user.is_authenticated %}
+          {% if user.member %}<div class="nav-user"><span class="nav-av">{% if user.member.photo %}<img src="{{ user.member.photo.url }}" alt="">{% else %}{{ user.member.first_name|slice:":1" }}{{ user.member.last_name|slice:":1" }}{% endif %}</span><span><b>{{ user.member.first_name }} {{ user.member.last_name }}</b><small>{{ user.member.membership_number|default:user.member.status_label }}</small></span></div>{% endif %}
           {% if user.is_staff %}<a class="btn btn-login" href="{% url 'admin:index' %}">Admin</a>{% endif %}
           {% if user.member %}<a class="btn btn-yellow" href="{% url 'members:dashboard' %}">My portal</a>{% endif %}
+          <form class="nav-logout" method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit">Log out</button></form>
         {% else %}
           <a class="btn btn-login" href="{% url 'login' %}">Log in</a>
           <a class="btn btn-yellow" href="{% url 'members:register' %}">Join TANPA</a>
         {% endif %}
+      </div>
+      <div class="nav-extra">
+        <a href="{% url 'members:verify_lookup' %}">{% include "partials/icon.html" with name="qr" size=16 %} Verify a member</a>
+        {% if site.phone %}<a href="tel:{{ site.phone|cut:' ' }}">{% include "partials/icon.html" with name="phone" size=16 %} {{ site.phone }}</a>{% endif %}
+        {% if site.email %}<a href="mailto:{{ site.email }}">{% include "partials/icon.html" with name="mail" size=16 %} {{ site.email }}</a>{% endif %}
       </div>
     </div>
     <button class="burger" data-burger aria-label="Menu" aria-controls="nav-links" aria-expanded="false"><span></span></button>
