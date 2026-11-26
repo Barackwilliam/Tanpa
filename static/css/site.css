@@ -973,3 +973,17 @@ h1,h2,h3{overflow-wrap:break-word}
 .fee.hot::after{display:none}
 .cta-xl{background:var(--g-700)}
 .vcard .ph,.tp-av{background:var(--g-600)}
+
+/* vision / mission / values (About) */
+.vm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media(max-width:800px){.vm-grid{grid-template-columns:minmax(0,1fr)}}
+.vm{padding:30px;border-radius:var(--r-lg);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}
+.vm-ic{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;background:rgba(255,214,10,.14);color:var(--y);margin-bottom:18px}
+.vm small{display:block;font-family:var(--f-mono);font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--y);margin-bottom:8px}
+.vm p{margin:0;color:#fff;font-family:var(--f-display);font-size:clamp(1.2rem,2vw,1.5rem);line-height:1.35;font-weight:600;letter-spacing:-.01em}
+.values{margin-top:40px}
+.values h3{color:#fff;font-size:1.4rem;margin-bottom:16px}
+.values ul:not(.ticks){list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media(max-width:900px){.values ul:not(.ticks){grid-template-columns:repeat(2,minmax(0,1fr))}}
+.values li .v-n{display:block;font-family:var(--f-mono);font-size:.72rem;color:var(--y);margin-bottom:6px}
+.values ul:not(.ticks) li{padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#fff;font-weight:700}

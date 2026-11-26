@@ -23,19 +23,25 @@
 </section>
 
 {% if site.mission or site.vision or site.objectives_list or site.values_list %}
-<section class="section dark grain">
+<section class="section dark grain" id="purpose">
   <div class="wrap">
-    <div class="head center" data-reveal><span class="kicker light">Our purpose</span><h2>Mission, vision &amp; objectives</h2></div>
+    <div class="head center" data-reveal><span class="kicker light">Our purpose</span><h2>Vision, mission{% if site.objectives_list %}, objectives{% endif %} &amp; values</h2></div>
     {% if site.mission or site.vision %}
-    <div class="bento" style="grid-auto-rows:auto;margin-bottom:18px">
-      {% if site.mission %}<article class="tile t-b" data-reveal style="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)"><div class="ic" style="background:rgba(255,214,10,.14);color:var(--y)">{% include "partials/icon.html" with name="award" %}</div><h3 style="color:#fff">Our mission</h3><p style="color:#b9cfc1;font-size:1.08rem">{{ site.mission }}</p></article>{% endif %}
-      {% if site.vision %}<article class="tile t-c" data-reveal style="--d:.1s;background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1)"><div class="ic" style="background:rgba(34,211,238,.14);color:var(--c)">{% include "partials/icon.html" with name="heart" %}</div><h3 style="color:#fff">Our vision</h3><p style="color:#b9cfc1;font-size:1.08rem">{{ site.vision }}</p></article>{% endif %}
+    <div class="vm-grid">
+      {% if site.vision %}<article class="vm" data-reveal><span class="vm-ic">{% include "partials/icon.html" with name="heart" %}</span><small>Vision</small><p>{{ site.vision }}</p></article>{% endif %}
+      {% if site.mission %}<article class="vm" data-reveal style="--d:.08s"><span class="vm-ic">{% include "partials/icon.html" with name="award" %}</span><small>Mission</small><p>{{ site.mission }}</p></article>{% endif %}
     </div>
     {% endif %}
-    {% if site.objectives_list or site.values_list %}
-    <div class="about-grid" style="gap:40px;align-items:start;margin-top:40px">
-      {% if site.objectives_list %}<div data-reveal><h3 style="font-size:1.6rem">Objectives</h3><ul class="ticks">{% for o in site.objectives_list %}<li>{{ o }}</li>{% endfor %}</ul></div>{% endif %}
-      {% if site.values_list %}<div data-reveal><h3 style="font-size:1.6rem">Core values</h3><ul class="ticks">{% for o in site.values_list %}<li>{{ o }}</li>{% endfor %}</ul></div>{% endif %}
+    {% if site.values_list %}
+    <div class="values" data-reveal>
+      <h3>Core values</h3>
+      <ul>{% for v in site.values_list %}<li><span class="v-n">{{ forloop.counter|stringformat:"02d" }}</span>{{ v }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    {% if site.objectives_list %}
+    <div class="values" data-reveal style="margin-top:28px">
+      <h3>Objectives</h3>
+      <ul class="ticks">{% for o in site.objectives_list %}<li>{{ o }}</li>{% endfor %}</ul>
     </div>
     {% endif %}
   </div>

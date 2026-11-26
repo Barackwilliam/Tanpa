@@ -65,8 +65,8 @@
       <p class="lede">{% if site.about %}{{ site.about|linebreaksbr|truncatewords_html:45 }}{% else %}TANPA brings together non-physician anaesthesia professionals in Tanzania to promote professional collaboration, continuous learning, high standards of practice and improved patient safety.{% endif %}</p>
       {% if site.mission or site.vision %}
       <div class="pillars">
-        {% if site.mission %}<div class="pillar"><h4>{% include "partials/icon.html" with name="award" size=18 %} Mission</h4><p>{{ site.mission|truncatewords:28 }}</p></div>{% endif %}
         {% if site.vision %}<div class="pillar"><h4>{% include "partials/icon.html" with name="heart" size=18 %} Vision</h4><p>{{ site.vision|truncatewords:28 }}</p></div>{% endif %}
+        {% if site.mission %}<div class="pillar"><h4>{% include "partials/icon.html" with name="award" size=18 %} Mission</h4><p>{{ site.mission|truncatewords:28 }}</p></div>{% endif %}
       </div>
       {% endif %}
       <a class="btn btn-dark" href="{% url 'core:about' %}">Discover TANPA {% include "partials/icon.html" with name="arrow" size=18 %}</a>
