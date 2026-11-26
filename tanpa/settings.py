@@ -57,6 +57,12 @@ CSRF_TRUSTED_ORIGINS = [
     o.strip() for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()
 ]
 
+# Render sets this automatically (e.g. tanpa.onrender.com), so the default URL works out of the box.
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
+
 
 # Application definition
 
@@ -219,6 +225,9 @@ EMAIL_BACKEND = os.environ.get(
     "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
 )
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+if EMAIL_BACKEND.endswith("smtp.EmailBackend") and not EMAIL_HOST:
+    # No mail server configured yet: log emails instead of crashing password resets.
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
@@ -226,7 +235,10 @@ EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", True)
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "TANPA <info@tanpa.co.tz>")
 
 # Public base URL used inside QR codes on ID cards and badges.
-SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000").rstrip("/")
+SITE_URL = (
+    os.environ.get("SITE_URL")
+    or (f"https://{RENDER_EXTERNAL_HOSTNAME}" if RENDER_EXTERNAL_HOSTNAME else "http://localhost:8000")
+).rstrip("/")
 
 # Payments ------------------------------------------------------------------
 # PAYMENT_SANDBOX lets you "pay" instantly while testing. Never enable in production.
@@ -247,6 +259,7 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = env_bool("DJANGO_SSL_REDIRECT", True)
+    SECURE_REDIRECT_EXEMPT = [r"^healthz$"]  # platform health checks use plain HTTP
     SECURE_HSTS_SECONDS = int(os.environ.get("DJANGO_HSTS_SECONDS", "0"))
 
 # Default primary key field type
@@ -339,4 +352,11 @@ UNFOLD = {
             },
         ],
     },
+}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": os.environ.get("LOG_LEVEL", "INFO")},
 }

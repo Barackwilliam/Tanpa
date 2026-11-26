@@ -1,0 +1,55 @@
+# Render Blueprint: Dashboard -> New -> Blueprint -> pick this repository.
+# Database and file storage live on Supabase, so no Render database or disk is needed.
+services:
+  - type: web
+    name: tanpa
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: ./build.sh
+    startCommand: gunicorn tanpa.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile -
+    healthCheckPath: /healthz
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DJANGO_DEBUG
+        value: "false"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_ALLOWED_HOSTS
+        value: tanpa.co.tz,www.tanpa.co.tz
+      - key: DJANGO_CSRF_TRUSTED_ORIGINS
+        value: https://tanpa.co.tz,https://www.tanpa.co.tz
+      - key: PAYMENT_SANDBOX
+        value: "false"
+      - key: WEB_CONCURRENCY
+        value: "2"
+      # --- fill these in the Render dashboard when prompted ---
+      - key: DATABASE_URL            # Supabase -> Database -> Connection string (Session pooler)
+        sync: false
+      - key: SUPABASE_URL            # https://<project-ref>.supabase.co
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_PUBLIC_BUCKET
+        value: tanpa-media
+      - key: SUPABASE_PRIVATE_BUCKET
+        value: tanpa-private
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
+      - key: SITE_URL                # leave empty until the domain is live; Render URL is used
+        sync: false
+      - key: EMAIL_BACKEND
+        value: django.core.mail.backends.smtp.EmailBackend
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        value: TANPA <info@tanpa.co.tz>

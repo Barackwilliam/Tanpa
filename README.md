@@ -96,14 +96,29 @@ Columns: `membership_number, first_name, middle_name, last_name, gender, phone, 
 workplace, region, district, joined_on, paid_years` (e.g. `2024;2025`). Imported members use
 *Forgot password* to set their own password.
 
-## Deploy (e.g. cPanel "Setup Python App" or a VPS)
+## Deploy to Render
 
-1. Set the environment variables from `.env.example`, at minimum `DJANGO_SECRET_KEY`,
-   `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS`, `SITE_URL`, `DATABASE_URL` and the `SUPABASE_*` values.
-2. `pip install -r requirements.txt`
-3. `python manage.py migrate && python manage.py collectstatic --noinput`
-4. Start with `gunicorn tanpa.wsgi` (or point the cPanel app at `tanpa/wsgi.py`).
-5. Uploads go to Supabase Storage. Backups: enable Supabase's database backups.
+The repo includes `render.yaml` (a Render Blueprint) and `build.sh`. The database and all uploads
+live on Supabase, so Render needs no database or disk of its own.
+
+1. Push the code to GitHub (merge this branch into `main` first, or pick this branch in Render).
+2. Render dashboard → **New → Blueprint** → choose the `Tanpa` repository → **Apply**.
+3. Render asks for the secret values. Fill in:
+   - `DATABASE_URL`: Supabase → Project Settings → Database → Connection string → URI (**Session pooler**)
+   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`: Supabase → Project Settings → API
+   - `DJANGO_SUPERUSER_USERNAME`, `DJANGO_SUPERUSER_EMAIL`, `DJANGO_SUPERUSER_PASSWORD`: your first admin login
+   - `SITE_URL` and the `EMAIL_*` values can stay empty for now.
+4. Every deploy runs `build.sh`: install, `collectstatic`, `migrate`, create the admin (first time
+   only) and the real starter content. Gunicorn starts the app and `/healthz` is the health check.
+5. Open `https://<service>.onrender.com/admin/`, log in and work through the launch checklist.
+
+**Custom domain (`tanpa.co.tz`):** Render → Settings → Custom Domains → add `tanpa.co.tz` and
+`www.tanpa.co.tz`, then create the DNS records Render shows at your domain registrar. After
+that, set `SITE_URL=https://tanpa.co.tz` so the QR codes on ID cards use the real domain.
+
+**Free plan note:** a free Render service sleeps after about 15 minutes without visitors, and the
+first visit then takes up to about a minute. Use a paid instance (Starter) for the live site,
+especially once AzamPay callbacks are enabled.
 
 ## Before launch: still needed from TANPA
 
