@@ -145,6 +145,40 @@ def start_payment(request, purpose):
     return redirect("payments:checkout", reference=payment.reference)
 
 
+def _qr_data_uri(url):
+    import base64
+    import io
+
+    import qrcode
+
+    q = qrcode.QRCode(box_size=10, border=1)
+    q.add_data(url)
+    q.make(fit=True)
+    buf = io.BytesIO()
+    q.make_image(fill_color="#04361a", back_color="white").save(buf, format="PNG")
+    return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
+
+
+@member_required
+def card(request):
+    """The member's ID card shown on screen (front and back), with the PDF download."""
+    from django.conf import settings
+
+    from .idcard import guilloche_svg
+
+    member = request.user.member
+    year = timezone.localdate().year
+    verify_url = f"{settings.SITE_URL}{member.get_verify_url()}"
+    return render(request, "members/card.html", {
+        "member": member,
+        "year": year,
+        "fees": FeeSchedule.for_year(year),
+        "qr": _qr_data_uri(verify_url) if member.membership_number else "",
+        "verify_url": verify_url,
+        "guilloche": guilloche_svg(),
+    })
+
+
 @member_required
 def id_card(request):
     member = request.user.member

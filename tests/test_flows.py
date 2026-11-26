@@ -300,3 +300,31 @@ class AdminLogoutTests(TestCase):
         resp = self.client.post(reverse("admin:logout"), {"next": reverse("admin:login")})
         self.assertRedirects(resp, reverse("admin:login"), fetch_redirect_response=False)
         self.assertEqual(self.client.get("/admin/").status_code, 302)
+
+
+@override_settings(MEDIA_ROOT=MEDIA)
+class CardPageTests(TestCase):
+    def setUp(self):
+        self.year = timezone.localdate().year
+        FeeSchedule.objects.create(year=self.year, entry_fee=20000, annual_fee=50000)
+
+    def test_states(self):
+        m = make_member(photo=photo())
+        self.client.force_login(m.user)
+        url = reverse("members:card")
+        self.assertContains(self.client.get(url), "Your card is issued after your first payment")
+        Payment.objects.create(user=m.user, purpose="joining", year=self.year - 1, amount=70000).mark_paid()
+        page = self.client.get(url)
+        self.assertContains(page, "NON-ACTIVE")
+        self.assertNotContains(page, reverse("members:id_card"))
+        Payment.objects.create(user=m.user, purpose="annual", year=self.year, amount=50000).mark_paid()
+        page = self.client.get(url)
+        self.assertContains(page, "ACTIVE MEMBER")
+        self.assertContains(page, "data:image/png;base64,")
+        self.assertContains(page, reverse("members:id_card"))
+        self.assertEqual(self.client.get(reverse("members:id_card")).status_code, 200)
+
+    def test_requires_login(self):
+        resp = self.client.get(reverse("members:card"))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(reverse("login"), resp.url)

@@ -10,6 +10,7 @@ urlpatterns = [
     path("portal/profile/", views.profile, name="profile"),
     path("portal/payments/", views.payments, name="payments"),
     path("portal/pay/<str:purpose>/", views.start_payment, name="pay"),
+    path("portal/card/", views.card, name="card"),
     path("portal/id-card.pdf", views.id_card, name="id_card"),
     path("verify/", views.verify_lookup, name="verify_lookup"),
     path("verify/<uuid:token>/", views.verify, name="verify"),

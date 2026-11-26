@@ -31,7 +31,7 @@
       <div class="msvc">
         <a href="{% url 'members:register' %}"><span class="ic">{% include "partials/icon.html" with name="user" %}</span><span><b>Join TANPA</b><small>Register &amp; get your number</small></span><span class="go">→</span></a>
         <a href="{% url 'members:dashboard' %}"><span class="ic">{% include "partials/icon.html" with name="pay" %}</span><span><b>Renew {% now "Y" %} subscription</b><small>Mobile money or bank</small></span><span class="go">→</span></a>
-        <a href="{% url 'members:id_card' %}"><span class="ic">{% include "partials/icon.html" with name="card" %}</span><span><b>Download your ID card</b><small>For active members</small></span><span class="go">→</span></a>
+        <a href="{% url 'members:card' %}"><span class="ic">{% include "partials/icon.html" with name="card" %}</span><span><b>Your membership ID card</b><small>For active members</small></span><span class="go">→</span></a>
       </div>
       <form class="mver" method="get" action="{% url 'members:verify_lookup' %}" role="search">
         <label class="sr-only" for="hero-verify">Membership number to verify</label>
@@ -100,7 +100,7 @@
         <li><b>Annual Validity</b> – Valid for the membership year paid, with convenient online renewal.</li>
         <li><b>Digital &amp; Printable</b> – Download your membership card as a PDF, save it on your phone, or print it.</li>
       </ul>
-      <a class="btn btn-primary" href="{% url 'members:id_card' %}">Access My Membership Card {% include "partials/icon.html" with name="arrow" size=18 %}</a>
+      <a class="btn btn-primary" href="{% url 'members:card' %}">Access My Membership Card {% include "partials/icon.html" with name="arrow" size=18 %}</a>
     </div>
     <div class="card3d-stage" data-reveal="zoom">
       <div class="card3d" aria-label="Example membership card">

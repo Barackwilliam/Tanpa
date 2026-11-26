@@ -1,0 +1,75 @@
+{% extends "base.html" %}{% load static humanize %}
+{% block title %}My ID card · TANPA{% endblock %}
+{% block content %}
+<section class="phero grain" style="padding-bottom:60px">
+  <div class="hero-grid-bg"></div>
+  <div class="wrap">
+    <div class="crumbs"><a href="{% url 'members:dashboard' %}">My portal</a><span>/</span><span>ID card</span></div>
+    <h1 style="font-size:clamp(2rem,4.5vw,3.4rem)">My membership ID card</h1>
+    {% if member.membership_number %}<p class="sub mono" style="color:var(--y)">{{ member.membership_number }}</p>{% endif %}
+  </div>
+</section>
+
+<section class="section" style="padding-top:56px;background:var(--mist)">
+  <div class="wrap">
+    {% with st=member.status %}
+    {% if st == "pending" %}
+      <div class="status-xl pending" style="max-width:820px;margin:0 auto">
+        <div class="ring" style="--p:25">{% include "partials/icon.html" with name="clock" %}</div>
+        <div><h3>Your card is issued after your first payment</h3><p>Pay the entry fee and the {{ year }} subscription to receive your membership number and ID card.</p></div>
+        {% if fees %}<form method="post" action="{% url 'members:pay' 'joining' %}">{% csrf_token %}<button class="btn btn-yellow btn-lg">Pay TZS {{ fees.joining_total|intcomma }}</button></form>{% endif %}
+      </div>
+    {% else %}
+      {% if st != "active" %}
+      <div class="status-xl {{ st }}" style="margin-bottom:28px">
+        <div class="ring" style="--p:100">{% include "partials/icon.html" with name="x" %}</div>
+        <div>{% if st == "suspended" %}<h3>Membership suspended</h3><p>Your card cannot be used while your membership is suspended. Please contact the secretariat.</p>
+        {% else %}<h3>Not active for {{ year }}</h3><p>Pay your {{ year }} subscription to activate your card and download it. Scanning the QR code currently shows <b>Non-active</b>.</p>{% endif %}</div>
+        {% if st == "non_active" and fees %}<form method="post" action="{% url 'members:pay' 'annual' %}">{% csrf_token %}<input type="hidden" name="year" value="{{ year }}"><button class="btn btn-yellow btn-lg">Renew {{ year }}</button></form>{% endif %}
+      </div>
+      {% endif %}
+
+      <div class="idc-pair {% if st != 'active' %}inactive{% endif %}">
+        <figure>
+          <div class="idc idc-front" aria-label="Front of membership card">
+            {{ guilloche|safe }}
+            <div class="f-head"><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""><div><b>TANZANIA ASSOCIATION OF<br>NON PHYSICIAN ANAESTHETISTS</b><span>MEMBERSHIP IDENTITY CARD</span></div></div>
+            <div class="f-stripe"></div>
+            <div class="f-photo">{% if member.photo %}<img src="{{ member.photo.url }}" alt="">{% else %}<span>{{ member.first_name|slice:":1" }}{{ member.last_name|slice:":1" }}</span>{% endif %}</div>
+            <div class="f-info">
+              <div class="f-name">{{ member.display_name|upper }}</div>
+              <div class="f-grid">
+                <div><small>Membership No.</small><b class="mono g">{{ member.membership_number }}</b></div>
+                <div><small>Region</small><b>{{ member.region }}</b></div>
+                <div class="full"><small>Cadre</small><b>{{ member.cadre_name|default:"—" }}</b></div>
+              </div>
+            </div>
+            <div class="f-holo"><img src="{% static 'img/tanpa-logo-256.png' %}" alt=""></div>
+            <div class="f-foot"><span>VALID UNTIL <b>31 DEC {{ year }}</b></span>{% if st == "active" %}<em>ACTIVE MEMBER</em>{% else %}<em class="no">NON-ACTIVE</em>{% endif %}</div>
+          </div>
+          <figcaption>Front</figcaption>
+        </figure>
+        <figure>
+          <div class="idc idc-back" aria-label="Back of membership card">
+            <svg class="b-ecg" viewBox="0 0 856 540" preserveAspectRatio="none" aria-hidden="true"><path d="M0 400 L60 400 Q70 388 80 400 L100 400 L107 410 L116 358 L126 432 L134 392 L140 400 L170 400 Q186 380 202 400 L260 400 L320 400 Q330 388 340 400 L360 400 L367 410 L376 358 L386 432 L394 392 L400 400 L430 400 Q446 380 462 400 L520 400 L580 400 Q590 388 600 400 L620 400 L627 410 L636 358 L646 432 L654 392 L660 400 L690 400 Q706 380 722 400 L780 400 L840 400 Q850 388 860 400 L880 400 L887 410 L896 358 L906 432 L914 392 L920 400 L950 400 Q966 380 982 400 L1040 400"/></svg>
+            <div class="b-qr"><img src="{{ qr }}" alt="QR code to verify this membership"></div>
+            <div class="b-txt"><small>SCAN TO VERIFY</small><b>Live status from the official register</b><p>Property of TANPA. If found, please return to the TANPA secretariat.</p></div>
+            <div class="b-num mono">{{ member.membership_number }}</div>
+            <div class="b-sign">AUTHORISED SIGNATURE</div>
+          </div>
+          <figcaption>Back</figcaption>
+        </figure>
+      </div>
+
+      <div class="idc-actions">
+        {% if st == "active" and member.photo %}<a class="btn btn-primary btn-lg" href="{% url 'members:id_card' %}">{% include "partials/icon.html" with name="download" size=18 %} Download PDF</a>
+        {% elif st == "active" %}<a class="btn btn-primary btn-lg" href="{% url 'members:profile' %}">{% include "partials/icon.html" with name="image" size=18 %} Add your photo to download</a>
+        {% else %}<span class="btn btn-primary btn-lg" aria-disabled="true" style="opacity:.45;cursor:not-allowed">{% include "partials/icon.html" with name="lock" size=18 %} Download PDF</span>{% endif %}
+        <a class="btn btn-outline btn-lg" href="{{ member.get_verify_url }}" target="_blank" rel="noopener">{% include "partials/icon.html" with name="qr" size=18 %} Open verification page</a>
+      </div>
+      <p class="center small muted" style="margin-top:14px">PDF · bank-card size 85.6 × 54 mm · front and back</p>
+    {% endif %}
+    {% endwith %}
+  </div>
+</section>
+{% endblock %}

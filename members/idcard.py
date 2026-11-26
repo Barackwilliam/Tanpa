@@ -157,6 +157,27 @@ def _guilloche(c, color, alpha):
     c.restoreState()
 
 
+_GUILLOCHE_SVG = None
+
+
+def guilloche_svg():
+    """Same security pattern as the PDF, as inline SVG for the on-screen card."""
+    global _GUILLOCHE_SVG
+    if _GUILLOCHE_SVG is None:
+        lines = []
+        for i in range(26):
+            pts = " ".join(
+                f"{x},{270 + math.sin(x / 60 + i * 0.45) * (60 + i * 6) + math.sin(x / 23 + i) * 8:.1f}"
+                for x in range(0, 864, 8)
+            )
+            lines.append(f'<polyline points="{pts}"/>')
+        _GUILLOCHE_SVG = (
+            '<svg class="idc-gl" viewBox="0 0 856 540" preserveAspectRatio="none" aria-hidden="true">'
+            + "".join(lines) + "</svg>"
+        )
+    return _GUILLOCHE_SVG
+
+
 def _hologram(c, cx, cy, r, logo):
     colors = ["#ffd60a", "#7ce6a1", "#22d3ee", "#c4b5fd", "#f9a8d4", "#ffd60a"]
     steps = 72

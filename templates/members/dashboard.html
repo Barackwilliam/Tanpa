@@ -28,7 +28,7 @@
         {% else %}<h3>{{ year }} subscription not paid</h3><p>You're currently <b>non-active</b>.{% if fees %} Renew for TZS {{ fees.annual_fee|intcomma }}.{% endif %}</p>{% endif %}
       </div>
       <div>
-        {% if st == "active" %}<a class="btn btn-primary btn-lg" href="{% url 'members:id_card' %}">{% include "partials/icon.html" with name="download" size=18 %} Download ID card</a>
+        {% if st == "active" %}<a class="btn btn-primary btn-lg" href="{% url 'members:card' %}">{% include "partials/icon.html" with name="card" size=18 %} View my ID card</a>
         {% elif st == "pending" and fees %}<form method="post" action="{% url 'members:pay' 'joining' %}">{% csrf_token %}<button class="btn btn-yellow btn-lg">Pay TZS {{ fees.joining_total|intcomma }} {% include "partials/icon.html" with name="arrow" size=18 %}</button></form>
         {% elif st == "non_active" and fees %}<form method="post" action="{% url 'members:pay' 'annual' %}">{% csrf_token %}<input type="hidden" name="year" value="{{ year }}"><button class="btn btn-yellow btn-lg">Renew {{ year }} {% include "partials/icon.html" with name="arrow" size=18 %}</button></form>{% endif %}
       </div>
@@ -48,7 +48,7 @@
     {% endif %}
 
     <div class="qgrid">
-      <a class="qa {% if not member.is_active_member %}locked{% endif %}" href="{% url 'members:id_card' %}" data-reveal><span class="go">↗</span><div class="ic">{% include "partials/icon.html" with name="card" %}</div><b>ID card</b><small>{% if member.is_active_member %}Download PDF{% else %}Active members only{% endif %}</small></a>
+      <a class="qa" href="{% url 'members:card' %}" data-reveal><span class="go">↗</span><div class="ic">{% include "partials/icon.html" with name="card" %}</div><b>ID card</b><small>{% if member.is_active_member %}View &amp; download{% else %}See what you need{% endif %}</small></a>
       <a class="qa" href="{% url 'events:list' %}" data-reveal style="--d:.05s"><span class="go">↗</span><div class="ic">{% include "partials/icon.html" with name="calendar" %}</div><b>Conferences</b><small>Register &amp; pay</small></a>
       <a class="qa" href="{% url 'members:payments' %}" data-reveal style="--d:.1s"><span class="go">↗</span><div class="ic">{% include "partials/icon.html" with name="receipt" %}</div><b>Payments</b><small>History &amp; receipts</small></a>
       <a class="qa" href="{% url 'members:profile' %}" data-reveal style="--d:.15s"><span class="go">↗</span><div class="ic">{% include "partials/icon.html" with name="user" %}</div><b>My profile</b><small>Update details &amp; photo</small></a>
