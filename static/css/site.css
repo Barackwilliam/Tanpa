@@ -962,3 +962,14 @@ h1,h2,h3{overflow-wrap:break-word}
 .f-note{color:#9db7a6;font-size:.92rem;margin:0}
 /* mobile menu: one solid colour */
 @media(max-width:1120px){.nav-links{background:var(--g-950)!important}}
+
+/* =====================================================================
+   One solid colour per dark section (no coloured glows)
+   ===================================================================== */
+.phero::before,.portal-hero::before,.verify-hero::before,.footer::before{display:none}
+.phero,.portal-hero,.verify-hero,.footer{background:var(--g-950)}
+.verify-band{background:var(--g-900)}
+.summary .top{background:none}
+.fee.hot::after{display:none}
+.cta-xl{background:var(--g-700)}
+.vcard .ph,.tp-av{background:var(--g-600)}
